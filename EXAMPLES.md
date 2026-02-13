@@ -210,6 +210,74 @@ clawdex swap --in SOL --out USDC --amount 0.005 --yes --json
 }
 ```
 
+## Sending Tokens
+
+### Simulate a send (no `--yes` required)
+
+```bash
+clawdex send --to 7xKp...3mFv --token SOL --amount 0.01 --simulate-only
+```
+
+```
+Simulation Result
+  From:  67vq...9SXb
+  To:    7xKp...3mFv
+  Token: 0.01 SOL
+
+Transfer Summary:
+  SOL: -0.010005000 SOL
+  Network fee: 0.000005000 SOL
+```
+
+### Execute a send (interactive confirmation)
+
+```bash
+clawdex send --to 7xKp...3mFv --token SOL --amount 0.01
+```
+
+```
+Send Summary
+  From:  67vq...9SXb
+  To:    7xKp...3mFv
+  Token: 0.01 SOL
+
+Transfer Summary:
+  SOL: -0.010005000 SOL
+  Network fee: 0.000005000 SOL
+
+Proceed with send? (y/N) y
+
+Send successful!
+  Signature: 4vRn...8xQm
+```
+
+### Execute without confirmation (for agents)
+
+```bash
+clawdex send --to 7xKp...3mFv --token SOL --amount 0.01 --yes --json
+```
+
+### JSON send output
+
+```json
+{
+  "success": true,
+  "signature": "4vRn...8xQm",
+  "from": "67vq...9SXb",
+  "to": "7xKp...3mFv",
+  "token": { "symbol": "SOL", "mint": "So11111111111111111111111111111111111111112", "amount": "0.01" },
+  "networkFee": 0.000005
+}
+```
+
+### Send an SPL token
+
+```bash
+clawdex send --to 7xKp...3mFv --token USDC --amount 5 --yes --json
+```
+
+If the recipient doesn't have a token account for that token, ClawDex creates one automatically (sender pays the rent).
+
 ## Safety Guardrails
 
 ### Set limits
@@ -282,6 +350,9 @@ clawdex swap --in SOL --out USDC --amount 0.01 --simulate-only --json
 
 # 5. Execute
 clawdex swap --in SOL --out USDC --amount 0.01 --yes --json
+
+# 6. Send tokens to another wallet
+clawdex send --to <address> --token SOL --amount 0.01 --yes --json
 ```
 
 All commands support `--json` for machine-readable output. Agents should always use `--json` and `--yes` flags.

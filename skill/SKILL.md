@@ -1,9 +1,9 @@
 ---
 name: clawdex
-description: Trade tokens on Solana using the ClawDex CLI. Use when the user asks to swap tokens, check balances, get quotes, or manage a Solana trading wallet.
+description: Trade and send tokens on Solana using the ClawDex CLI. Use when the user asks to swap tokens, send tokens, check balances, get quotes, or manage a Solana trading wallet.
 tools: Bash, Read
 metadata:
-  tags: solana, trading, defi, jupiter, swap, crypto
+  tags: solana, trading, defi, jupiter, swap, send, crypto
 ---
 
 # ClawDex — Solana DEX Trading Skill
@@ -65,6 +65,14 @@ clawdex swap --in SOL --out USDC --amount 0.01 --yes --json
 
 **`--yes` is required** for non-interactive execution. Without it, ClawDex exits with code 1.
 
+### Send tokens to another wallet
+
+```bash
+clawdex send --to <address> --token SOL --amount 0.01 --yes --json
+```
+
+Sends SOL or any SPL token to a recipient. Creates the recipient's token account automatically if needed. Supports `--simulate-only` for dry runs.
+
 ### Health check
 
 ```bash
@@ -81,7 +89,8 @@ Always follow this sequence:
 2. **Check balances** — `clawdex balances --json` — verify sufficient funds
 3. **Simulate** — `clawdex swap --simulate-only --json` — preview the trade
 4. **Execute** — `clawdex swap --yes --json` — only if simulation looks good
-5. **Verify** — `clawdex balances --json` — confirm balances updated (may need 5s delay on public RPC)
+5. **Send** (optional) — `clawdex send --to <addr> --token SOL --amount 0.01 --yes --json` — transfer tokens
+6. **Verify** — `clawdex balances --json` — confirm balances updated (may need 5s delay on public RPC)
 
 ## Token Specification
 

@@ -88,6 +88,14 @@ clawdex swap --in SOL --out USDC --amount 0.01 --yes --json
 
 `--yes` is **required** for non-interactive execution. Without it, ClawDex exits with code 1.
 
+### 4b. Send tokens (transfer without swap)
+
+```bash
+clawdex send --to <address> --token SOL --amount 0.01 --yes --json
+```
+
+Sends SOL or any SPL token to a recipient. For SPL tokens, the recipient's token account is created automatically if needed. `--simulate-only` works here too.
+
 ### 5. Verify
 
 ```bash
@@ -158,7 +166,7 @@ Tokens can be specified by symbol or mint address:
 ## Tips
 
 - Always use `--json` — human output is not machine-parseable
-- Always use `--yes` for real swaps — without it, exit code 1
+- Always use `--yes` for real swaps and sends — without it, exit code 1
 - `--simulate-only` does **not** need `--yes`
 - RPC balance updates can lag 5-10 seconds on public endpoints — retry reads
 - Use a dedicated RPC (Helius, Triton, etc.) for production agents
