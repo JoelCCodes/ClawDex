@@ -3,7 +3,7 @@ import { PublicKey } from '@solana/web3.js';
 // Jupiter API
 export const JUPITER_QUOTE_URL = 'https://api.jup.ag/swap/v1/quote';
 export const JUPITER_SWAP_URL = 'https://api.jup.ag/swap/v1/swap';
-export const JUPITER_TOKEN_LIST_URL = 'https://tokens.jup.ag/tokens?tags=verified';
+export const JUPITER_TOKEN_LIST_URL = 'https://api.jup.ag/tokens/v2/tag?query=verified';
 
 // Known program IDs
 export const SYSTEM_PROGRAM_ID = new PublicKey('11111111111111111111111111111111');

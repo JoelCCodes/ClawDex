@@ -53,19 +53,19 @@ export async function fetchTokenList(apiKey?: string): Promise<TokenInfo[]> {
   }
 
   const data: Array<{
-    address: string;
+    id: string;
     symbol: string;
     name: string;
     decimals: number;
-    logoURI?: string;
+    icon?: string;
   }> = await res.json();
 
   const tokens: TokenInfo[] = data.map((t) => ({
-    mint: t.address,
+    mint: t.id,
     symbol: t.symbol,
     name: t.name,
     decimals: t.decimals,
-    logoURI: t.logoURI,
+    logoURI: t.icon,
   }));
 
   // Write cache

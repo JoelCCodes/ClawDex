@@ -29,7 +29,7 @@ afterEach(async () => {
   await rm(tempDir, { recursive: true, force: true });
 });
 
-function mockFetch(tokens: Array<{ address: string; symbol: string; name: string; decimals: number }>) {
+function mockFetch(tokens: Array<{ id: string; symbol: string; name: string; decimals: number }>) {
   const fn = mock(() =>
     Promise.resolve(new Response(JSON.stringify(tokens), { status: 200 }))
   );
@@ -91,7 +91,7 @@ describe('resolveToken', () => {
   it('resolves raw mint address via Jupiter list', async () => {
     const fakeMint = 'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263';
     mockFetch([
-      { address: fakeMint, symbol: 'BONK', name: 'Bonk', decimals: 5 },
+      { id: fakeMint, symbol: 'BONK', name: 'Bonk', decimals: 5 },
     ]);
 
     const token = await resolveToken(fakeMint);
@@ -108,7 +108,7 @@ describe('resolveToken', () => {
   it('second call uses cache (fetch only called once)', async () => {
     const fakeMint = 'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263';
     const fetchFn = mockFetch([
-      { address: fakeMint, symbol: 'BONK', name: 'Bonk', decimals: 5 },
+      { id: fakeMint, symbol: 'BONK', name: 'Bonk', decimals: 5 },
     ]);
 
     // First call - triggers fetch and writes cache

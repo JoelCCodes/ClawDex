@@ -1,5 +1,9 @@
 # ClawDex
 
+<p align="center">
+  <video src="https://github.com/JoelCCodes/ClawDex/raw/main/assets/clawdex-demo.mp4" width="800" autoplay loop muted playsinline></video>
+</p>
+
 Solana DEX trading from the command line. Swap any token through [Jupiter](https://jup.ag), with transaction simulation, safety guardrails, and full JSON output for agent/bot integration.
 
 ```bash
