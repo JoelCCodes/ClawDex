@@ -1,0 +1,30 @@
+import { Command } from 'commander';
+import { configCommand } from './commands/config.js';
+import { safetyCommand } from './commands/safety.js';
+import { statusCommand } from './commands/status.js';
+import { balancesCommand } from './commands/balances.js';
+import { quoteCommand } from './commands/quote.js';
+import { receiptCommand } from './commands/receipt.js';
+import { swapCommand } from './commands/swap.js';
+
+const program = new Command();
+
+program
+  .name('clawdex')
+  .description('Solana DEX trading CLI powered by Jupiter')
+  .version('0.1.0')
+  .showHelpAfterError()
+  .enablePositionalOptions()
+  .passThroughOptions()
+  .option('--json', 'Output in JSON format')
+  .option('--wallet <path>', 'Path to wallet keypair JSON');
+
+program.addCommand(configCommand());
+program.addCommand(safetyCommand());
+program.addCommand(statusCommand());
+program.addCommand(balancesCommand());
+program.addCommand(quoteCommand());
+program.addCommand(receiptCommand());
+program.addCommand(swapCommand());
+
+program.parse();

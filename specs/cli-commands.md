@@ -73,6 +73,7 @@ Optional flags:
 - `--yes` - Skip confirmation prompt (required for agent mode)
 - `--json` - Machine-readable output
 - `--simulate-only` - Simulate but don't broadcast
+- `--skip-simulation` - Skip simulation before broadcast (dangerous, use with caution)
 
 Behavior:
 1. Get quote from Jupiter
@@ -147,6 +148,7 @@ Set safety guardrail values. Writes to `~/.clawdex/config.toml` under `[safety]`
 
 Keys:
 - `max_fee_bps` - Maximum allowed integrator fee
+- `max_slippage_bps` - Maximum allowed slippage tolerance
 - `max_price_impact_bps` - Maximum allowed price impact
 - `max_trade_sol` - Maximum trade size in SOL equivalent
 - `allowlist` - Comma-separated list of allowed output mints/symbols

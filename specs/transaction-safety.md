@@ -40,6 +40,7 @@ If any transfer goes to an address not in the known set, **reject the transactio
 
 ### Configurable limits (from `[safety]` config)
 - `max_fee_bps` - Reject if integrator fee exceeds this
+- `max_slippage_bps` - Reject if requested slippage tolerance exceeds this
 - `max_price_impact_bps` - Reject if price impact exceeds this
 - `max_trade_sol` - Reject if trade size (in SOL terms) exceeds this
 - `allowlist` - If set, reject swaps to output mints not on the list

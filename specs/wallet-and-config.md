@@ -24,6 +24,7 @@ receipts_dir = "~/.clawdex/receipts"
 
 [safety]
 max_fee_bps = 100
+max_slippage_bps = 500
 max_price_impact_bps = 300
 max_trade_sol = 10.0
 # allowlist = ["USDC", "USDT", "SOL"]

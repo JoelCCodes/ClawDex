@@ -1,0 +1,12 @@
+rpc = "https://api.mainnet-beta.solana.com"
+wallet = "~/.clawdex/wallet.json"
+fee_bps = 50
+fee_account = "FEEaccountxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+receipts_dir = "~/.clawdex/receipts"
+
+[safety]
+max_fee_bps = 100
+max_slippage_bps = 300
+max_price_impact_bps = 500
+max_trade_sol = 10
+allowlist = ["SOL", "USDC", "USDT"]

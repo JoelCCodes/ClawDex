@@ -1,0 +1,30 @@
+{
+  "inputMint": "So11111111111111111111111111111111",
+  "outputMint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+  "inAmount": "1000000000",
+  "outAmount": "23456789",
+  "otherAmountThreshold": "23222221",
+  "swapMode": "ExactIn",
+  "slippageBps": 50,
+  "platformFee": {
+    "amount": "11728",
+    "feeBps": 50
+  },
+  "priceImpactPct": "0.12",
+  "routePlan": [
+    {
+      "swapInfo": {
+        "ammKey": "58oQChx4yWmvKdwLLZzBi4ChoCc2fqCUWBkwMihLYQo2",
+        "label": "Raydium",
+        "inputMint": "So11111111111111111111111111111111",
+        "outputMint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+        "inAmount": "1000000000",
+        "outAmount": "23456789",
+        "feeAmount": "5000",
+        "feeMint": "So11111111111111111111111111111111"
+      },
+      "percent": 100
+    }
+  ],
+  "contextSlot": 250000000
+}

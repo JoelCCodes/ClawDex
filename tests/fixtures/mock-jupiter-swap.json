@@ -1,0 +1,18 @@
+{
+  "swapTransaction": "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAQAHEPZGQ...",
+  "lastValidBlockHeight": 250000100,
+  "prioritizationFeeLamports": 5000,
+  "computeUnitLimit": 200000,
+  "prioritizationType": {
+    "computeBudget": {
+      "microLamports": 25000,
+      "estimatedMicroLamports": 25000
+    }
+  },
+  "dynamicSlippageReport": {
+    "slippageBps": 50,
+    "otherAmount": 23222221,
+    "simulatedIncurredSlippageBps": 12,
+    "amplificationRatio": "1.5"
+  }
+}

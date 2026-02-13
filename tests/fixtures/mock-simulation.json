@@ -1,0 +1,9 @@
+{
+  "value": {
+    "err": null,
+    "logs": ["Program JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4 invoke [1]", "Program log: Instruction: Route"],
+    "accounts": null,
+    "unitsConsumed": 150000,
+    "returnData": null
+  }
+}
