@@ -40,7 +40,7 @@ Or run without installing: `npx clawdex <command>`
 clawdex onboarding
 ```
 
-This walks you through 5 steps: Jupiter API key, RPC endpoint, wallet, safety limits, and validation. You'll need a free Jupiter API key from **[portal.jup.ag/api-keys](https://portal.jup.ag/api-keys)**.
+This walks you through 4 steps: Jupiter API key, RPC endpoint, wallet, and safety limits. It auto-detects existing config, env vars, and Solana CLI wallets. You'll need a free Jupiter API key from **[portal.jup.ag/api-keys](https://portal.jup.ag/api-keys)**.
 
 Don't have a Solana wallet? The onboarding will generate one for you.
 

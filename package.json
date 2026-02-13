@@ -1,6 +1,6 @@
 {
   "name": "clawdex",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Solana DEX trading CLI powered by Jupiter",
   "type": "module",
   "bin": {
