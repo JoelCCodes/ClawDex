@@ -23,6 +23,20 @@ export const KNOWN_TOKENS: Record<string, { symbol: string; name: string; mint: 
   USDT: { symbol: 'USDT', name: 'Tether USD', mint: USDT_MINT, decimals: 6 },
 };
 
+// Common fee token mints (top tokens by Jupiter volume)
+export const COMMON_FEE_MINTS: { symbol: string; mint: string }[] = [
+  { symbol: 'USDC', mint: USDC_MINT },
+  { symbol: 'USDT', mint: USDT_MINT },
+  { symbol: 'SOL', mint: SOL_MINT },
+  { symbol: 'JUP', mint: 'JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN' },
+  { symbol: 'jitoSOL', mint: 'J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn' },
+  { symbol: 'mSOL', mint: 'mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So' },
+  { symbol: 'BONK', mint: 'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263' },
+  { symbol: 'WIF', mint: 'EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm' },
+  { symbol: 'RAY', mint: '4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R' },
+  { symbol: 'PYTH', mint: 'HZ1JovNiVvGrGNiiYvEozEVgZ58xaU3RKwX8eACQBCt3' },
+];
+
 // Config paths
 export const CONFIG_DIR = '~/.clawdex';
 export const CONFIG_FILE = '~/.clawdex/config.toml';
@@ -33,7 +47,8 @@ export const RECEIPTS_FILE = '~/.clawdex/receipts/receipts.jsonl';
 // Defaults
 export const DEFAULT_RPC = 'https://api.mainnet-beta.solana.com';
 export const DEFAULT_SLIPPAGE_BPS = 50;
-export const DEFAULT_FEE_BPS = 0;
+export const DEFAULT_FEE_BPS = 20;
+export const DEFAULT_FEE_ACCOUNT = '76JTogdqp98XRkBXMdEz77P36Gq4LjikRdqzqKGqHKK8';
 export const TOKEN_CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
 
 // Retry config

@@ -1,11 +1,12 @@
 import { Command } from 'commander';
-import { VersionedTransaction } from '@solana/web3.js';
+import { Connection, PublicKey, Transaction, VersionedTransaction } from '@solana/web3.js';
+import { createAssociatedTokenAccountInstruction, getAccount } from '@solana/spl-token';
 import chalk from 'chalk';
 import { resolveConfig } from '../core/config.js';
 import { loadWallet } from '../core/wallet.js';
 import { createConnection } from '../core/connection.js';
 import { resolveToken } from '../core/tokens.js';
-import { getQuote, getSwapTransaction, amountToSmallestUnit } from '../core/jupiter.js';
+import { getQuote, getSwapTransaction, amountToSmallestUnit, deriveFeeAta } from '../core/jupiter.js';
 import { validateSafety } from '../core/safety.js';
 import {
   simulateAndDiff,
@@ -84,6 +85,35 @@ async function promptConfirmation(message: string): Promise<boolean> {
       resolve(normalized === 'y' || normalized === 'yes');
     });
   });
+}
+
+/** Ensure the fee ATA exists on-chain, creating it if needed. */
+async function ensureFeeAta(
+  connection: Connection,
+  payer: { publicKey: PublicKey; secretKey: Uint8Array },
+  feeWallet: string,
+  mint: string,
+  feeAtaAddress: string,
+): Promise<void> {
+  const feeAtaPubkey = new PublicKey(feeAtaAddress);
+  try {
+    await getAccount(connection, feeAtaPubkey);
+    // ATA already exists
+  } catch {
+    // ATA doesn't exist — create it
+    const ix = createAssociatedTokenAccountInstruction(
+      payer.publicKey,        // payer
+      feeAtaPubkey,           // ATA to create
+      new PublicKey(feeWallet), // owner of the ATA
+      new PublicKey(mint),    // token mint
+    );
+    const tx = new Transaction().add(ix);
+    tx.feePayer = payer.publicKey;
+    tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+    tx.sign({ publicKey: payer.publicKey, secretKey: payer.secretKey });
+    const sig = await connection.sendRawTransaction(tx.serialize());
+    await connection.confirmTransaction(sig, 'confirmed');
+  }
 }
 
 export function swapCommand(): Command {
@@ -206,7 +236,25 @@ export function swapCommand(): Command {
         }
 
         // Step 4: Get swap transaction
-        const feeAccount = config.fee_account || undefined;
+        // Derive the fee token account (ATA) from the fee wallet + output mint.
+        // Jupiter requires a token account, not a raw wallet address.
+        const connection = createConnection(config.rpc, 'confirmed');
+        const feeWallet = config.fee_account || undefined;
+        let feeAccount: string | undefined;
+        if (feeWallet && feeBps > 0) {
+          const feeAtaAddress = deriveFeeAta(feeWallet, outputToken.mint);
+          try {
+            await getAccount(connection, new PublicKey(feeAtaAddress));
+            feeAccount = feeAtaAddress;
+          } catch {
+            // Fee ATA doesn't exist — auto-create if enabled, otherwise skip fee
+            if (config.auto_create_fee_ata) {
+              await ensureFeeAta(connection, keypair, feeWallet, outputToken.mint, feeAtaAddress);
+              feeAccount = feeAtaAddress;
+            }
+            // else: silently skip fee for this token
+          }
+        }
         const { swapTransaction: swapTxBase64, lastValidBlockHeight } = await getSwapTransaction({
           quoteResponse: quote,
           userPublicKey: keypair.publicKey.toBase58(),
@@ -217,8 +265,6 @@ export function swapCommand(): Command {
         // Deserialize the versioned transaction
         const txBuffer = Buffer.from(swapTxBase64, 'base64');
         const transaction = VersionedTransaction.deserialize(txBuffer);
-
-        const connection = createConnection(config.rpc, 'confirmed');
         let diff: TransferDiff | undefined;
 
         // Step 5: Simulate (unless --skip-simulation)
@@ -232,7 +278,7 @@ export function swapCommand(): Command {
 
             // Validate transfers against known addresses
             const tokenMints = [inputToken.mint, outputToken.mint];
-            const knownAddresses = buildKnownAddresses(keypair.publicKey, feeAccount, tokenMints);
+            const knownAddresses = buildKnownAddresses(keypair.publicKey, feeWallet, tokenMints);
 
             // Add DEX program IDs from the route plan
             for (const step of quote.routePlan) {

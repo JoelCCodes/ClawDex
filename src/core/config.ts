@@ -11,6 +11,7 @@ import {
   RECEIPTS_DIR,
   DEFAULT_RPC,
   DEFAULT_FEE_BPS,
+  DEFAULT_FEE_ACCOUNT,
 } from '../constants.js';
 
 /** Expand leading `~` to the user's home directory. */
@@ -27,7 +28,8 @@ export function getDefaultConfig(): ClawdexConfig {
     rpc: DEFAULT_RPC,
     wallet: '',
     fee_bps: DEFAULT_FEE_BPS,
-    fee_account: '',
+    fee_account: DEFAULT_FEE_ACCOUNT,
+    auto_create_fee_ata: true,
     receipts_dir: RECEIPTS_DIR,
     jupiter_api_key: '',
     safety: {},
@@ -62,6 +64,7 @@ export function loadConfig(): ClawdexConfig {
     wallet: typeof parsed.wallet === 'string' ? parsed.wallet : defaults.wallet,
     fee_bps: typeof parsed.fee_bps === 'number' ? parsed.fee_bps : defaults.fee_bps,
     fee_account: typeof parsed.fee_account === 'string' ? parsed.fee_account : defaults.fee_account,
+    auto_create_fee_ata: typeof parsed.auto_create_fee_ata === 'boolean' ? parsed.auto_create_fee_ata : defaults.auto_create_fee_ata,
     receipts_dir: typeof parsed.receipts_dir === 'string' ? parsed.receipts_dir : defaults.receipts_dir,
     jupiter_api_key: typeof parsed.jupiter_api_key === 'string' ? parsed.jupiter_api_key : defaults.jupiter_api_key,
     safety,
@@ -89,6 +92,7 @@ export function resolveConfig(flags: Partial<ClawdexConfig> = {}): ClawdexConfig
   if (flags.wallet != null) config.wallet = flags.wallet;
   if (flags.fee_bps != null) config.fee_bps = flags.fee_bps;
   if (flags.fee_account != null) config.fee_account = flags.fee_account;
+  if (flags.auto_create_fee_ata != null) config.auto_create_fee_ata = flags.auto_create_fee_ata;
   if (flags.receipts_dir != null) config.receipts_dir = flags.receipts_dir;
   if (flags.jupiter_api_key != null) config.jupiter_api_key = flags.jupiter_api_key;
   if (flags.safety) config.safety = { ...config.safety, ...flags.safety };
@@ -129,7 +133,7 @@ function readOrCreateToml(): JsonMap {
  * Creates the config directory and file if they don't exist.
  */
 export function setConfigValue(key: string, value: string): void {
-  const validKeys = ['rpc', 'wallet', 'fee_bps', 'fee_account', 'receipts_dir', 'jupiter_api_key'];
+  const validKeys = ['rpc', 'wallet', 'fee_bps', 'fee_account', 'auto_create_fee_ata', 'receipts_dir', 'jupiter_api_key'];
   if (!validKeys.includes(key)) {
     throw new Error(`Unknown config key: "${key}". Valid keys: ${validKeys.join(', ')}`);
   }
@@ -146,6 +150,8 @@ export function setConfigValue(key: string, value: string): void {
 
   if (key === 'fee_bps') {
     parsed[key] = Number(value);
+  } else if (key === 'auto_create_fee_ata') {
+    parsed[key] = value === 'true';
   } else {
     parsed[key] = value;
   }

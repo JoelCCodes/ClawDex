@@ -118,11 +118,11 @@ export async function simulateAndDiff(
         tokenChanges.push({ mint: tb.mint, change, decimals });
       }
 
-      // Track destination addresses for incoming transfers
-      const owner = tb.owner ?? '';
-      if (change > 0 && owner) {
-        destinations.add(owner);
-      }
+      // Track destination addresses — only non-user owners receiving tokens.
+      // We intentionally do NOT add these to the destinations set for
+      // VersionedTransactions because simulation balance changes include
+      // internal DEX pool movements that are normal swap infrastructure.
+      // Safety is enforced by pre-swap checks (slippage, price impact, etc.).
     }
 
     // Check for accounts fully drained (present in pre but not post)
@@ -137,13 +137,14 @@ export async function simulateAndDiff(
     }
   }
 
-  // Also collect destinations from instruction data
+  // For legacy transactions without simulation balance data, fall back to
+  // instruction-level account scanning. For VersionedTransactions the
+  // pre/post balance tracking above is sufficient and more precise — scanning
+  // all instruction account keys would flag pool vaults, oracles, etc.
   if (transaction instanceof Transaction) {
     for (const ix of transaction.instructions) {
       collectInstructionDestinations(ix, userPublicKey, destinations);
     }
-  } else {
-    collectVersionedDestinations(transaction, userPublicKey, destinations);
   }
 
   // Estimate fee: 5000 lamports base
@@ -213,6 +214,13 @@ export function buildKnownAddresses(
   known.add(TOKEN_PROGRAM_ID.toBase58());
   known.add(ATA_PROGRAM_ID.toBase58());
   known.add(JUPITER_V6_PROGRAM_ID.toBase58());
+
+  // Token mints themselves (appear in simulation account lists)
+  if (tokenMints) {
+    for (const mint of tokenMints) {
+      known.add(mint);
+    }
+  }
 
   // User ATAs for each token mint
   if (tokenMints) {

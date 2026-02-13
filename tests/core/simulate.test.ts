@@ -63,7 +63,7 @@ describe('simulate', () => {
 
       // Fee account itself should be included
       expect(known.has(TEST_FEE_ACCOUNT)).toBe(true);
-      // But known set should only have user + 4 programs + fee account = 6
+      // user + 4 programs (System, Token, ATA, Jupiter) + fee account = 6
       expect(known.size).toBe(6);
     });
   });

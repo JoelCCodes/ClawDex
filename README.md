@@ -7,8 +7,11 @@ ClawDex provides a command-line interface for swapping tokens on Solana through 
 ## Quick Start
 
 ```bash
-# Install dependencies
-bun install
+# Install via npx (no install needed)
+npx clawdex status
+
+# Or install globally
+npm install -g clawdex
 
 # Set your Jupiter API key (free at https://portal.jup.ag/api-keys)
 clawdex config set jupiter_api_key=YOUR_API_KEY
@@ -29,25 +32,27 @@ clawdex swap --in SOL --out USDC --amount 1 --slippage-bps 50
 
 ## Installation
 
-Requires [Bun](https://bun.sh) runtime.
+### Via npm (recommended)
+
+```bash
+npm install -g clawdex
+```
+
+Or run without installing:
+
+```bash
+npx clawdex <command>
+```
+
+### From source
+
+Requires [Bun](https://bun.sh) runtime for development.
 
 ```bash
 git clone https://github.com/JoelCCodes/ClawDex.git
 cd ClawDex
 bun install
-```
-
-Run directly:
-
-```bash
 bun run src/cli.ts <command>
-```
-
-Or build a binary:
-
-```bash
-bun run build
-./dist/cli <command>
 ```
 
 ## Jupiter API Key
@@ -126,7 +131,7 @@ clawdex swap --in SOL --out USDC --amount 1 --yes --json
 | `--out <token>` | Output token symbol or mint address |
 | `--amount <number>` | Amount of input token |
 | `--slippage-bps <n>` | Slippage tolerance in basis points (default: 50) |
-| `--fee-bps <n>` | Integrator fee in basis points |
+| `--fee-bps <n>` | Integrator fee in basis points (default: 20) |
 | `--yes` | Skip confirmation prompt |
 | `--json` | Output structured JSON |
 | `--simulate-only` | Simulate but don't broadcast |
@@ -150,10 +155,11 @@ Set configuration values. Config is stored in `~/.clawdex/config.toml`.
 clawdex config set jupiter_api_key=YOUR_API_KEY
 clawdex config set rpc=https://api.mainnet-beta.solana.com
 clawdex config set wallet=~/.config/solana/id.json
-clawdex config set fee_bps=50 fee_account=<pubkey>
+clawdex config set fee_bps=20 fee_account=<pubkey>
+clawdex config set auto_create_fee_ata=true
 ```
 
-**Config keys:** `rpc`, `wallet`, `fee_bps`, `fee_account`, `receipts_dir`, `jupiter_api_key`
+**Config keys:** `rpc`, `wallet`, `fee_bps`, `fee_account`, `auto_create_fee_ata`, `receipts_dir`, `jupiter_api_key`
 
 ### `clawdex safety set`
 
@@ -166,6 +172,67 @@ clawdex safety set allowlist=SOL,USDC,USDT
 ```
 
 **Safety keys:** `max_fee_bps`, `max_slippage_bps`, `max_price_impact_bps`, `max_trade_sol`, `allowlist`, `rpc_allowlist`
+
+### `clawdex setup-fees`
+
+Pre-create fee token accounts (ATAs) for common tokens on the configured fee wallet. This is a one-time setup step for integrators who want to collect fees.
+
+```bash
+# Pre-create ATAs for top 10 tokens (USDC, USDT, SOL, JUP, jitoSOL, mSOL, BONK, WIF, RAY, PYTH)
+clawdex setup-fees
+
+# With a specific payer wallet
+clawdex setup-fees --wallet ~/.config/solana/id.json
+```
+
+Each ATA costs ~0.002 SOL in rent (one-time, reclaimable). The payer wallet covers the rent.
+
+## Integrator Fees
+
+ClawDex includes a built-in integrator fee system powered by Jupiter's platform fee. A 0.2% (20 bps) fee is applied by default on every swap and collected to the configured fee wallet.
+
+### How it works
+
+1. The `fee_bps` config sets the fee percentage (default: 20 bps = 0.2%)
+2. The `fee_account` config sets the wallet that receives fees
+3. For each swap, ClawDex derives the fee wallet's Associated Token Account (ATA) for the output token
+4. If the ATA exists on-chain, the fee is collected. If not, the fee is silently skipped for that token
+
+### Setting up fee collection
+
+```bash
+# 1. Configure your fee wallet
+clawdex config set fee_account=YOUR_WALLET_PUBKEY
+
+# 2. Pre-create ATAs for common tokens (one-time, costs ~0.002 SOL each)
+clawdex setup-fees
+
+# 3. Fees are now collected automatically on every swap
+clawdex swap --in SOL --out USDC --amount 1 --yes
+```
+
+### Auto-create fee ATAs
+
+By default, if a fee ATA doesn't exist for a token, it is auto-created on-the-fly (~0.002 SOL rent, paid by the swapper). To disable this and silently skip fees for missing ATAs:
+
+```bash
+clawdex config set auto_create_fee_ata=false
+```
+
+When disabled, pre-create ATAs with `setup-fees` for the tokens you want to collect fees on.
+
+### Overriding or disabling fees
+
+```bash
+# Disable fees for a single swap
+clawdex swap --in SOL --out USDC --amount 1 --fee-bps 0
+
+# Change the default fee percentage
+clawdex config set fee_bps=50  # 0.5%
+
+# Remove the fee account entirely
+clawdex config set fee_account=
+```
 
 ## Configuration
 
@@ -182,8 +249,9 @@ Example `~/.clawdex/config.toml`:
 jupiter_api_key = "your-api-key-here"
 rpc = "https://api.mainnet-beta.solana.com"
 wallet = "~/.config/solana/id.json"
-fee_bps = 50
+fee_bps = 20
 fee_account = "YourFeeWalletPublicKey"
+auto_create_fee_ata = true
 receipts_dir = "~/.clawdex/receipts"
 
 [safety]
@@ -198,8 +266,7 @@ allowlist = ["SOL", "USDC", "USDT"]
 
 ClawDex uses a **fail-closed** safety model:
 
-- **Transaction simulation** - Every swap is simulated before broadcast. The simulation result is parsed into an instruction-level transfer diff showing exactly where funds will go.
-- **Unknown address rejection** - If any transfer destination is not in the known address set (your wallet, your ATAs, Jupiter program, fee account, system programs), the swap is rejected.
+- **Transaction simulation** - Every swap is simulated before broadcast. The simulation result is parsed into a transfer diff showing balance changes.
 - **Configurable guardrails** - Maximum fee, slippage, price impact, trade size, and token allowlists are enforced before the transaction is even built.
 - **Agent safety** - In non-TTY mode (piped input), the `--yes` flag is required. All safety checks still apply in `--yes --json` mode.
 
@@ -247,8 +314,12 @@ bun run typecheck
 # Linting
 bun run lint
 
-# Run the CLI
+# Run the CLI (dev mode)
 bun run src/cli.ts status
+
+# Build for Node.js
+bun run build
+node dist/cli.js status
 ```
 
 ## Architecture
@@ -265,7 +336,7 @@ src/
     output.ts         # Output formatting (human/chalk vs JSON)
     jupiter.ts        # Jupiter Swap API client (quote, swap, retry, fee ATA)
     safety.ts         # Safety validation (fee, slippage, impact, size, allowlist)
-    simulate.ts       # Transaction simulation, transfer diff, address validation
+    simulate.ts       # Transaction simulation, transfer diff
     receipts.ts       # JSONL receipt storage and lookup
     connection.ts     # Solana Connection factory
   commands/
@@ -276,6 +347,7 @@ src/
     quote.ts          # clawdex quote
     receipt.ts        # clawdex receipt
     swap.ts           # clawdex swap (8-step pipeline)
+    setup-fees.ts     # clawdex setup-fees (pre-create fee ATAs)
 tests/
   core/               # Unit tests for core modules
   commands/           # Integration tests for CLI commands

@@ -24,7 +24,7 @@ import {
   setConfigValue,
   setSafetyValue,
 } from '../../src/core/config.js';
-import { DEFAULT_RPC, DEFAULT_FEE_BPS, RECEIPTS_DIR } from '../../src/constants.js';
+import { DEFAULT_RPC, DEFAULT_FEE_BPS, DEFAULT_FEE_ACCOUNT, RECEIPTS_DIR } from '../../src/constants.js';
 
 let tempDir: string;
 let origEnvRpc: string | undefined;
@@ -79,7 +79,7 @@ describe('loadConfig', () => {
     expect(config.rpc).toBe(DEFAULT_RPC);
     expect(config.wallet).toBe('');
     expect(config.fee_bps).toBe(DEFAULT_FEE_BPS);
-    expect(config.fee_account).toBe('');
+    expect(config.fee_account).toBe(DEFAULT_FEE_ACCOUNT);
     expect(config.receipts_dir).toBe(RECEIPTS_DIR);
     expect(config.safety).toEqual({});
   });

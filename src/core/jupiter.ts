@@ -131,12 +131,12 @@ export async function getSwapTransaction(params: {
 
 /** Derive the Associated Token Account for a fee wallet and token mint. */
 export function deriveFeeAta(
-  feeAccountPubkey: string,
+  feeWallet: string,
   tokenMint: string,
 ): string {
   const ata = getAssociatedTokenAddressSync(
     new PublicKey(tokenMint),
-    new PublicKey(feeAccountPubkey),
+    new PublicKey(feeWallet),
   );
   return ata.toBase58();
 }

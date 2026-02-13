@@ -28,6 +28,7 @@ export interface ClawdexConfig {
   wallet: string;
   fee_bps: number;
   fee_account: string;
+  auto_create_fee_ata: boolean;
   receipts_dir: string;
   jupiter_api_key: string;
   safety: SafetyConfig;

@@ -1,16 +1,39 @@
 {
   "name": "clawdex",
   "version": "0.1.0",
+  "description": "Solana DEX trading CLI powered by Jupiter",
   "type": "module",
   "bin": {
-    "clawdex": "src/cli.ts"
+    "clawdex": "dist/cli.js"
   },
+  "files": [
+    "dist/"
+  ],
   "scripts": {
-    "start": "bun run src/cli.ts",
-    "build": "bun build src/cli.ts --outdir dist --target bun",
+    "start": "node dist/cli.js",
+    "dev": "bun run src/cli.ts",
+    "build": "tsc",
+    "prepublishOnly": "tsc",
     "test": "bun test",
     "lint": "eslint src/",
     "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "solana",
+    "dex",
+    "jupiter",
+    "swap",
+    "cli",
+    "trading"
+  ],
+  "author": "JoelCCodes",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/JoelCCodes/ClawDex.git"
+  },
+  "engines": {
+    "node": ">=18"
   },
   "dependencies": {
     "@solana/web3.js": "^1.98",
@@ -20,10 +43,11 @@
     "chalk": "^5"
   },
   "devDependencies": {
-    "typescript": "^5.7",
     "@types/bun": "latest",
-    "eslint": "^9",
+    "@types/node": "^25.2.3",
     "@typescript-eslint/eslint-plugin": "^8",
-    "@typescript-eslint/parser": "^8"
+    "@typescript-eslint/parser": "^8",
+    "eslint": "^9",
+    "typescript": "^5.7"
   }
 }

@@ -165,6 +165,7 @@ mock.module('${srcRoot}/core/jupiter.js', () => ({
   }),
   getSwapTransaction: async () => ({ swapTransaction: mockTxBase64, lastValidBlockHeight: 300000000 }),
   amountToSmallestUnit: (amount: number, decimals: number) => Math.round(amount * (10 ** decimals)).toString(),
+  deriveFeeAta: (feeWallet: string, mint: string) => feeWallet + '-' + mint.slice(0, 8),
 }));
 
 mock.module('${srcRoot}/core/safety.js', () => ({

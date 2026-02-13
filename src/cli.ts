@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { Command } from 'commander';
 import { configCommand } from './commands/config.js';
 import { safetyCommand } from './commands/safety.js';
@@ -6,6 +7,7 @@ import { balancesCommand } from './commands/balances.js';
 import { quoteCommand } from './commands/quote.js';
 import { receiptCommand } from './commands/receipt.js';
 import { swapCommand } from './commands/swap.js';
+import { setupFeesCommand } from './commands/setup-fees.js';
 
 const program = new Command();
 
@@ -26,5 +28,6 @@ program.addCommand(balancesCommand());
 program.addCommand(quoteCommand());
 program.addCommand(receiptCommand());
 program.addCommand(swapCommand());
+program.addCommand(setupFeesCommand());
 
 program.parse();
