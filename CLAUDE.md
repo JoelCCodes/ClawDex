@@ -2,7 +2,7 @@
 
 Solana DEX trading CLI powered by Jupiter. Swap any token, with simulation, safety guardrails, and full JSON output.
 
-- **Current version**: 0.3.0
+- **Current version**: 0.3.1
 - **Package**: `npm install -g clawdex`
 - **Config**: `~/.clawdex/config.toml`
 
