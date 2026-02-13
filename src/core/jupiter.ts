@@ -6,24 +6,43 @@ import {
   JUPITER_SWAP_URL,
   MAX_RETRIES,
   INITIAL_RETRY_DELAY_MS,
+  FETCH_TIMEOUT_MS,
+  RETRYABLE_STATUS_CODES,
 } from '../constants.js';
 
-/** Fetch with retry on 429 (rate limit) using exponential backoff. */
+/** Fetch with retry on retryable status codes and network errors, using exponential backoff. */
 async function fetchWithRetry(
   url: string,
   options: RequestInit = {},
   retries: number = MAX_RETRIES,
 ): Promise<Response> {
+  let lastError: Error | undefined;
   let lastResponse: Response | undefined;
 
   for (let attempt = 0; attempt <= retries; attempt++) {
-    const res = await fetch(url, options);
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
 
-    if (res.status !== 429) {
-      return res;
+    try {
+      const res = await fetch(url, { ...options, signal: controller.signal });
+      clearTimeout(timeout);
+
+      if (!RETRYABLE_STATUS_CODES.includes(res.status)) {
+        return res;
+      }
+
+      lastResponse = res;
+    } catch (err) {
+      clearTimeout(timeout);
+      lastError = err instanceof Error ? err : new Error(String(err));
+
+      if (attempt === retries) {
+        if (lastError.name === 'AbortError') {
+          throw new Error(`Request timed out after ${FETCH_TIMEOUT_MS}ms: ${url}`);
+        }
+        throw new Error(`Network error after ${retries + 1} attempts: ${lastError.message}`);
+      }
     }
-
-    lastResponse = res;
 
     if (attempt < retries) {
       const delay = INITIAL_RETRY_DELAY_MS * Math.pow(2, attempt);

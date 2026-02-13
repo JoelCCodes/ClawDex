@@ -133,6 +133,82 @@ describe('jupiter', () => {
       expect(result.inputMint).toBe(mockQuoteResponse.inputMint);
     });
 
+    it('retries on 5xx status codes', async () => {
+      let callCount = 0;
+      globalThis.fetch = mock(async () => {
+        callCount++;
+        if (callCount <= 2) {
+          return new Response('server error', { status: 503 });
+        }
+        return new Response(JSON.stringify(mockQuoteResponse), { status: 200 });
+      }) as unknown as typeof fetch;
+
+      const result = await getQuote({
+        inputMint: 'So11111111111111111111111111111111',
+        outputMint: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
+        amount: '1000000000',
+        slippageBps: 50,
+      });
+
+      expect(callCount).toBe(3);
+      expect(result.inputMint).toBe(mockQuoteResponse.inputMint);
+    });
+
+    it('retries on network errors', async () => {
+      let callCount = 0;
+      globalThis.fetch = mock(async () => {
+        callCount++;
+        if (callCount <= 2) {
+          throw new Error('ECONNRESET');
+        }
+        return new Response(JSON.stringify(mockQuoteResponse), { status: 200 });
+      }) as unknown as typeof fetch;
+
+      const result = await getQuote({
+        inputMint: 'So11111111111111111111111111111111',
+        outputMint: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
+        amount: '1000000000',
+        slippageBps: 50,
+      });
+
+      expect(callCount).toBe(3);
+      expect(result.inputMint).toBe(mockQuoteResponse.inputMint);
+    });
+
+    it('throws after exhausting retries on network errors', async () => {
+      globalThis.fetch = mock(async () => {
+        throw new Error('ECONNREFUSED');
+      }) as unknown as typeof fetch;
+
+      await expect(
+        getQuote({
+          inputMint: 'So11111111111111111111111111111111',
+          outputMint: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
+          amount: '1000000000',
+          slippageBps: 50,
+        }),
+      ).rejects.toThrow('Network error after 4 attempts');
+    }, 15_000);
+
+    it('does not retry on 400 errors', async () => {
+      let callCount = 0;
+      globalThis.fetch = mock(async () => {
+        callCount++;
+        return new Response(JSON.stringify({ error: 'Bad request' }), { status: 400, statusText: 'Bad Request' });
+      }) as unknown as typeof fetch;
+
+      await expect(
+        getQuote({
+          inputMint: 'invalid',
+          outputMint: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
+          amount: '1000000000',
+          slippageBps: 50,
+        }),
+      ).rejects.toThrow('Jupiter quote failed');
+
+      expect(callCount).toBe(1);
+    });
+
     it('throws on non-200/non-429 with error message from response body', async () => {
       globalThis.fetch = mock(async () => {
         return new Response(JSON.stringify({ error: 'Invalid token mint' }), {

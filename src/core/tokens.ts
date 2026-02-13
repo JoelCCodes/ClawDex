@@ -7,6 +7,7 @@ import {
   TOKEN_CACHE_FILE,
   CONFIG_DIR,
   TOKEN_CACHE_TTL_MS,
+  FETCH_TIMEOUT_MS,
 } from '../constants.js';
 
 /** Expand ~ to home directory */
@@ -47,7 +48,19 @@ export async function fetchTokenList(apiKey?: string): Promise<TokenInfo[]> {
   // Fetch from Jupiter
   const headers: Record<string, string> = {};
   if (apiKey) headers['x-api-key'] = apiKey;
-  const res = await fetch(JUPITER_TOKEN_LIST_URL, { headers });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+  let res: Response;
+  try {
+    res = await fetch(JUPITER_TOKEN_LIST_URL, { headers, signal: controller.signal });
+  } catch (err) {
+    clearTimeout(timeout);
+    if (err instanceof Error && err.name === 'AbortError') {
+      throw new Error(`Token list request timed out after ${FETCH_TIMEOUT_MS}ms`);
+    }
+    throw err;
+  }
+  clearTimeout(timeout);
   if (!res.ok) {
     throw new Error(`Failed to fetch token list: ${res.status} ${res.statusText}`);
   }

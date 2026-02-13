@@ -37,6 +37,23 @@ function mockFetch(tokens: Array<{ id: string; symbol: string; name: string; dec
   return fn;
 }
 
+describe('fetchTokenList', () => {
+  it('throws on timeout', async () => {
+    globalThis.fetch = mock(async (_url: string | URL | Request, init?: RequestInit) => {
+      // Simulate a slow response by waiting for the abort signal
+      return new Promise<Response>((_resolve, reject) => {
+        if (init?.signal) {
+          init.signal.addEventListener('abort', () => {
+            reject(new DOMException('The operation was aborted', 'AbortError'));
+          });
+        }
+      });
+    }) as unknown as typeof fetch;
+
+    await expect(fetchTokenList()).rejects.toThrow('timed out');
+  }, 35_000);
+});
+
 describe('isValidBase58', () => {
   it('validates correct Solana addresses', () => {
     expect(isValidBase58(SOL_MINT)).toBe(true);

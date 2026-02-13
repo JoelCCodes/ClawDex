@@ -54,3 +54,5 @@ export const TOKEN_CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
 // Retry config
 export const MAX_RETRIES = 3;
 export const INITIAL_RETRY_DELAY_MS = 1000;
+export const FETCH_TIMEOUT_MS = 30_000;
+export const RETRYABLE_STATUS_CODES = [429, 500, 502, 503, 504];
