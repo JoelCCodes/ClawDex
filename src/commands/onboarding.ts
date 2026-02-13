@@ -288,16 +288,17 @@ export function onboardingCommand(): Command {
 
       let allValid = true;
 
-      // Validate Jupiter API key
+      // Validate Jupiter API key (soft — warn but don't block config write)
       try {
         const tokens = await fetchTokenList(jupiterApiKey);
         validation.jupiter_api_key.valid = true;
         validation.jupiter_api_key.token_count = tokens.length;
         if (!isJson) console.log(`    Jupiter API key  OK (${tokens.length} tokens)`);
       } catch (err) {
-        allValid = false;
+        // Soft failure: API key might be fine, network/DNS might be the issue
         validation.jupiter_api_key.error = err instanceof Error ? err.message : String(err);
-        if (!isJson) console.log(`    Jupiter API key  FAIL (${validation.jupiter_api_key.error})`);
+        if (!isJson) console.log(`    Jupiter API key  WARN — could not verify (${validation.jupiter_api_key.error})`);
+        if (!isJson) console.log(`                     Key saved anyway — will be used on next command`);
       }
 
       // Validate RPC
@@ -328,7 +329,7 @@ export function onboardingCommand(): Command {
         if (!isJson) console.log(`    Wallet           FAIL (${validation.wallet.error})`);
       }
 
-      // Write config only if all validations pass
+      // Write config if hard validations (RPC + wallet) pass
       if (allValid) {
         try {
           setConfigValue('jupiter_api_key', jupiterApiKey);
@@ -377,6 +378,9 @@ export function onboardingCommand(): Command {
       } else {
         if (allValid) {
           console.log(`\n  Config written to ~/.clawdex/config.toml`);
+          if (!validation.jupiter_api_key.valid) {
+            console.log('  Note: Jupiter API key could not be verified but was saved.');
+          }
           console.log('  Run `clawdex status` to verify, or `clawdex swap` to start trading.');
         } else {
           console.log('\n  Onboarding failed — fix the errors above and try again.');
