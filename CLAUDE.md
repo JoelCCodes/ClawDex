@@ -2,7 +2,7 @@
 
 Solana DEX trading CLI powered by Jupiter. Swap any token, with simulation, safety guardrails, and full JSON output.
 
-- **Current version**: 0.2.0
+- **Current version**: 0.3.0
 - **Package**: `npm install -g clawdex`
 - **Config**: `~/.clawdex/config.toml`
 
@@ -42,6 +42,13 @@ bun x tsc --noEmit          # type check
 - `src/types.ts` — all TypeScript interfaces
 - `src/constants.ts` — API URLs, known tokens, defaults
 - `tests/` — mirrors `src/` structure
+
+### Releasing
+
+Before every `npm publish` or `/ship`:
+1. Bump `version` in `package.json` (npm rejects re-publishing the same version)
+2. Update `Current version` at the top of this file to match
+3. Update the version check in `AGENT.md` (`should print X.Y.Z+`)
 
 ### Conventions
 
