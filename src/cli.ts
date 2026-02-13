@@ -8,6 +8,8 @@ import { quoteCommand } from './commands/quote.js';
 import { receiptCommand } from './commands/receipt.js';
 import { swapCommand } from './commands/swap.js';
 import { setupFeesCommand } from './commands/setup-fees.js';
+import { onboardingCommand } from './commands/onboarding.js';
+import { walletCommand } from './commands/wallet.js';
 
 const program = new Command();
 
@@ -29,5 +31,7 @@ program.addCommand(quoteCommand());
 program.addCommand(receiptCommand());
 program.addCommand(swapCommand());
 program.addCommand(setupFeesCommand());
+program.addCommand(onboardingCommand());
+program.addCommand(walletCommand());
 
 program.parse();

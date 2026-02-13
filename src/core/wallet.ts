@@ -1,4 +1,5 @@
-import { readFileSync, existsSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
+import { dirname } from 'path';
 import { Keypair, Transaction, PublicKey } from '@solana/web3.js';
 import type { Signer } from '../types.js';
 import { expandHome } from './config.js';
@@ -45,6 +46,22 @@ export function loadWallet(walletPath: string): Keypair {
       `Failed to create keypair from ${resolved}: ${e instanceof Error ? e.message : String(e)}`,
     );
   }
+}
+
+/**
+ * Generate a new Solana keypair and save it to a JSON file.
+ * Refuses to overwrite an existing file. Writes with 0o600 permissions (owner-only).
+ */
+export function generateWallet(outputPath: string): Keypair {
+  const resolved = expandHome(outputPath);
+  const dir = dirname(resolved);
+  if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+  if (existsSync(resolved)) {
+    throw new Error(`Wallet file already exists: ${resolved}. Will not overwrite.`);
+  }
+  const keypair = Keypair.generate();
+  writeFileSync(resolved, JSON.stringify(Array.from(keypair.secretKey)), { mode: 0o600 });
+  return keypair;
 }
 
 /**
