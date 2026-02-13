@@ -17,7 +17,7 @@ const program = new Command();
 program
   .name('clawdex')
   .description('Solana DEX trading CLI powered by Jupiter')
-  .version('0.3.1')
+  .version('0.3.2')
   .showHelpAfterError()
   .enablePositionalOptions()
   .passThroughOptions()

@@ -10,7 +10,7 @@ npm install -g clawdex@latest
 
 Verify:
 ```bash
-clawdex --version   # should print 0.3.1+
+clawdex --version   # should print 0.3.2+
 ```
 
 ## Setup (non-interactive)
