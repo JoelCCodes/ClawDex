@@ -107,13 +107,21 @@ export async function resolveToken(symbolOrMint: string, apiKey?: string): Promi
     return { ...knownByMint };
   }
 
-  // If it looks like a mint address, search the Jupiter token list
+  // Search the Jupiter token list by mint address or symbol
+  const tokens = await fetchTokenList(apiKey);
+
+  // If it looks like a mint address, prefer exact mint match
   if (isValidBase58(symbolOrMint)) {
-    const tokens = await fetchTokenList(apiKey);
     const found = tokens.find((t) => t.mint === symbolOrMint);
     if (found) {
       return { ...found };
     }
+  }
+
+  // Search by symbol (case-insensitive)
+  const bySymbol = tokens.find((t) => t.symbol.toUpperCase() === upper);
+  if (bySymbol) {
+    return { ...bySymbol };
   }
 
   throw new Error(`Token not found: ${symbolOrMint}`);

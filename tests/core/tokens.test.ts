@@ -118,7 +118,44 @@ describe('resolveToken', () => {
     expect(token.decimals).toBe(5);
   });
 
+  it('resolves JUP by symbol from Jupiter list', async () => {
+    const jupMint = 'JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN';
+    mockFetch([
+      { id: jupMint, symbol: 'JUP', name: 'Jupiter', decimals: 6 },
+    ]);
+
+    const token = await resolveToken('JUP');
+    expect(token.symbol).toBe('JUP');
+    expect(token.mint).toBe(jupMint);
+    expect(token.decimals).toBe(6);
+  });
+
+  it('resolves symbol case-insensitively from Jupiter list', async () => {
+    const jupMint = 'JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN';
+    mockFetch([
+      { id: jupMint, symbol: 'JUP', name: 'Jupiter', decimals: 6 },
+    ]);
+
+    const token = await resolveToken('jup');
+    expect(token.symbol).toBe('JUP');
+    expect(token.mint).toBe(jupMint);
+  });
+
+  it('prefers mint match over symbol for base58 input', async () => {
+    const mintA = 'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263';
+    mockFetch([
+      { id: mintA, symbol: 'BONK', name: 'Bonk', decimals: 5 },
+      { id: 'AAAyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN', symbol: 'OTHER', name: 'Other', decimals: 9 },
+    ]);
+
+    // When input is a valid mint address, should match by mint, not symbol
+    const token = await resolveToken(mintA);
+    expect(token.symbol).toBe('BONK');
+    expect(token.mint).toBe(mintA);
+  });
+
   it('throws "Token not found" for nonexistent token', async () => {
+    mockFetch([]);
     expect(resolveToken('NONEXISTENT')).rejects.toThrow('Token not found');
   });
 
