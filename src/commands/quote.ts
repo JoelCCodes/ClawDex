@@ -46,8 +46,9 @@ export function quoteCommand(): Command {
 
       try {
         // Resolve tokens
-        const inputToken = await resolveToken(opts.in);
-        const outputToken = await resolveToken(opts.out);
+        const apiKey = config.jupiter_api_key || undefined;
+        const inputToken = await resolveToken(opts.in, apiKey);
+        const outputToken = await resolveToken(opts.out, apiKey);
 
         // Convert amount to smallest unit
         const amountSmallest = amountToSmallestUnit(amount, inputToken.decimals);
@@ -59,6 +60,7 @@ export function quoteCommand(): Command {
           amount: amountSmallest,
           slippageBps,
           platformFeeBps: feeBps > 0 ? feeBps : undefined,
+          apiKey,
         });
 
         if (mode === OutputMode.Json) {

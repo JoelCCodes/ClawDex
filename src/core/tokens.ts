@@ -28,7 +28,7 @@ interface TokenCache {
 }
 
 /** Fetch the verified token list from Jupiter, with file-based caching */
-export async function fetchTokenList(): Promise<TokenInfo[]> {
+export async function fetchTokenList(apiKey?: string): Promise<TokenInfo[]> {
   const cachePath = expandHome(TOKEN_CACHE_FILE);
 
   // Try reading from cache
@@ -45,7 +45,9 @@ export async function fetchTokenList(): Promise<TokenInfo[]> {
   }
 
   // Fetch from Jupiter
-  const res = await fetch(JUPITER_TOKEN_LIST_URL);
+  const headers: Record<string, string> = {};
+  if (apiKey) headers['x-api-key'] = apiKey;
+  const res = await fetch(JUPITER_TOKEN_LIST_URL, { headers });
   if (!res.ok) {
     throw new Error(`Failed to fetch token list: ${res.status} ${res.statusText}`);
   }
@@ -78,7 +80,7 @@ export async function fetchTokenList(): Promise<TokenInfo[]> {
 }
 
 /** Resolve a token symbol or mint address to full TokenInfo */
-export async function resolveToken(symbolOrMint: string): Promise<TokenInfo> {
+export async function resolveToken(symbolOrMint: string, apiKey?: string): Promise<TokenInfo> {
   // Check known tokens (case-insensitive symbol match)
   const upper = symbolOrMint.toUpperCase();
   const known = KNOWN_TOKENS[upper];
@@ -88,7 +90,7 @@ export async function resolveToken(symbolOrMint: string): Promise<TokenInfo> {
 
   // If it looks like a mint address, search the Jupiter token list
   if (isValidBase58(symbolOrMint)) {
-    const tokens = await fetchTokenList();
+    const tokens = await fetchTokenList(apiKey);
     const found = tokens.find((t) => t.mint === symbolOrMint);
     if (found) {
       return { ...found };

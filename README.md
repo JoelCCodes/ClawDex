@@ -10,6 +10,9 @@ ClawDex provides a command-line interface for swapping tokens on Solana through 
 # Install dependencies
 bun install
 
+# Set your Jupiter API key (free at https://portal.jup.ag/api-keys)
+clawdex config set jupiter_api_key=YOUR_API_KEY
+
 # Configure RPC and wallet
 clawdex config set rpc=https://api.mainnet-beta.solana.com
 clawdex config set wallet=~/.config/solana/id.json
@@ -45,6 +48,18 @@ Or build a binary:
 ```bash
 bun run build
 ./dist/cli <command>
+```
+
+## Jupiter API Key
+
+ClawDex uses the [Jupiter Swap API](https://dev.jup.ag/) which requires an API key. Get a free key at **[portal.jup.ag/api-keys](https://portal.jup.ag/api-keys)**, then configure it:
+
+```bash
+# Via config
+clawdex config set jupiter_api_key=YOUR_API_KEY
+
+# Or via environment variable
+export JUPITER_API_KEY=YOUR_API_KEY
 ```
 
 ## Commands
@@ -132,12 +147,13 @@ clawdex receipt <transaction-signature> --json
 Set configuration values. Config is stored in `~/.clawdex/config.toml`.
 
 ```bash
+clawdex config set jupiter_api_key=YOUR_API_KEY
 clawdex config set rpc=https://api.mainnet-beta.solana.com
 clawdex config set wallet=~/.config/solana/id.json
 clawdex config set fee_bps=50 fee_account=<pubkey>
 ```
 
-**Config keys:** `rpc`, `wallet`, `fee_bps`, `fee_account`, `receipts_dir`
+**Config keys:** `rpc`, `wallet`, `fee_bps`, `fee_account`, `receipts_dir`, `jupiter_api_key`
 
 ### `clawdex safety set`
 
@@ -157,12 +173,13 @@ ClawDex uses a layered configuration system. Values are resolved in this order (
 
 1. **Defaults** - Built-in defaults
 2. **Config file** - `~/.clawdex/config.toml`
-3. **Environment variables** - `CLAWDEX_RPC`, `CLAWDEX_WALLET`, `CLAWDEX_FEE_BPS`, `CLAWDEX_FEE_ACCOUNT`, `CLAWDEX_RECEIPTS_DIR`
+3. **Environment variables** - `CLAWDEX_RPC`, `CLAWDEX_WALLET`, `CLAWDEX_FEE_BPS`, `CLAWDEX_FEE_ACCOUNT`, `CLAWDEX_RECEIPTS_DIR`, `JUPITER_API_KEY`
 4. **CLI flags** - `--wallet`, `--json`, etc.
 
 Example `~/.clawdex/config.toml`:
 
 ```toml
+jupiter_api_key = "your-api-key-here"
 rpc = "https://api.mainnet-beta.solana.com"
 wallet = "~/.config/solana/id.json"
 fee_bps = 50

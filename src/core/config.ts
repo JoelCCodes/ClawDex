@@ -29,6 +29,7 @@ export function getDefaultConfig(): ClawdexConfig {
     fee_bps: DEFAULT_FEE_BPS,
     fee_account: '',
     receipts_dir: RECEIPTS_DIR,
+    jupiter_api_key: '',
     safety: {},
   };
 }
@@ -62,6 +63,7 @@ export function loadConfig(): ClawdexConfig {
     fee_bps: typeof parsed.fee_bps === 'number' ? parsed.fee_bps : defaults.fee_bps,
     fee_account: typeof parsed.fee_account === 'string' ? parsed.fee_account : defaults.fee_account,
     receipts_dir: typeof parsed.receipts_dir === 'string' ? parsed.receipts_dir : defaults.receipts_dir,
+    jupiter_api_key: typeof parsed.jupiter_api_key === 'string' ? parsed.jupiter_api_key : defaults.jupiter_api_key,
     safety,
   };
 }
@@ -80,6 +82,7 @@ export function resolveConfig(flags: Partial<ClawdexConfig> = {}): ClawdexConfig
   if (process.env.CLAWDEX_FEE_BPS) config.fee_bps = Number(process.env.CLAWDEX_FEE_BPS);
   if (process.env.CLAWDEX_FEE_ACCOUNT) config.fee_account = process.env.CLAWDEX_FEE_ACCOUNT;
   if (process.env.CLAWDEX_RECEIPTS_DIR) config.receipts_dir = process.env.CLAWDEX_RECEIPTS_DIR;
+  if (process.env.JUPITER_API_KEY) config.jupiter_api_key = process.env.JUPITER_API_KEY;
 
   // Layer CLI flags (override everything)
   if (flags.rpc != null) config.rpc = flags.rpc;
@@ -87,6 +90,7 @@ export function resolveConfig(flags: Partial<ClawdexConfig> = {}): ClawdexConfig
   if (flags.fee_bps != null) config.fee_bps = flags.fee_bps;
   if (flags.fee_account != null) config.fee_account = flags.fee_account;
   if (flags.receipts_dir != null) config.receipts_dir = flags.receipts_dir;
+  if (flags.jupiter_api_key != null) config.jupiter_api_key = flags.jupiter_api_key;
   if (flags.safety) config.safety = { ...config.safety, ...flags.safety };
 
   // Enforce rpc_allowlist
@@ -125,7 +129,7 @@ function readOrCreateToml(): JsonMap {
  * Creates the config directory and file if they don't exist.
  */
 export function setConfigValue(key: string, value: string): void {
-  const validKeys = ['rpc', 'wallet', 'fee_bps', 'fee_account', 'receipts_dir'];
+  const validKeys = ['rpc', 'wallet', 'fee_bps', 'fee_account', 'receipts_dir', 'jupiter_api_key'];
   if (!validKeys.includes(key)) {
     throw new Error(`Unknown config key: "${key}". Valid keys: ${validKeys.join(', ')}`);
   }

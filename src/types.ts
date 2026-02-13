@@ -29,6 +29,7 @@ export interface ClawdexConfig {
   fee_bps: number;
   fee_account: string;
   receipts_dir: string;
+  jupiter_api_key: string;
   safety: SafetyConfig;
 }
 

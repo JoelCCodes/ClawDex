@@ -12,7 +12,7 @@ export function configCommand(): Command {
   cmd
     .command('set')
     .description('Set configuration values')
-    .argument('<pairs...>', 'key=value pairs (keys: rpc, wallet, fee_bps, fee_account, receipts_dir)')
+    .argument('<pairs...>', 'key=value pairs (keys: rpc, wallet, fee_bps, fee_account, receipts_dir, jupiter_api_key)')
     .option('--json', 'Output in JSON format')
     .action((pairs: string[], opts: { json?: boolean }) => {
       const mode = opts.json ? OutputMode.Json : OutputMode.Human;

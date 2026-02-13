@@ -159,8 +159,9 @@ export function swapCommand(): Command {
 
       try {
         // Step 1: Resolve tokens
-        inputToken = await resolveToken(opts.in);
-        outputToken = await resolveToken(opts.out);
+        const apiKey = config.jupiter_api_key || undefined;
+        inputToken = await resolveToken(opts.in, apiKey);
+        outputToken = await resolveToken(opts.out, apiKey);
 
         // Step 2: Get quote
         const amountSmallest = amountToSmallestUnit(amount, inputToken.decimals);
@@ -170,6 +171,7 @@ export function swapCommand(): Command {
           amount: amountSmallest,
           slippageBps,
           platformFeeBps: feeBps > 0 ? feeBps : undefined,
+          apiKey,
         });
 
         routeString = buildRouteString(quote.routePlan);
@@ -209,6 +211,7 @@ export function swapCommand(): Command {
           quoteResponse: quote,
           userPublicKey: keypair.publicKey.toBase58(),
           feeAccount,
+          apiKey,
         });
 
         // Deserialize the versioned transaction

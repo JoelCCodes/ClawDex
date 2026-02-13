@@ -34,6 +34,15 @@ async function fetchWithRetry(
   return lastResponse!;
 }
 
+/** Build headers with optional API key. */
+function buildHeaders(apiKey?: string): Record<string, string> {
+  const headers: Record<string, string> = {};
+  if (apiKey) {
+    headers['x-api-key'] = apiKey;
+  }
+  return headers;
+}
+
 /** Get a swap quote from Jupiter. */
 export async function getQuote(params: {
   inputMint: string;
@@ -41,6 +50,7 @@ export async function getQuote(params: {
   amount: string;
   slippageBps: number;
   platformFeeBps?: number;
+  apiKey?: string;
 }): Promise<QuoteResult> {
   const url = new URL(JUPITER_QUOTE_URL);
   url.searchParams.set('inputMint', params.inputMint);
@@ -52,7 +62,7 @@ export async function getQuote(params: {
     url.searchParams.set('platformFeeBps', String(params.platformFeeBps));
   }
 
-  const res = await fetchWithRetry(url.toString());
+  const res = await fetchWithRetry(url.toString(), { headers: buildHeaders(params.apiKey) });
 
   if (!res.ok) {
     let message = `Jupiter quote failed (${res.status}): ${res.statusText}`;
@@ -73,6 +83,7 @@ export async function getSwapTransaction(params: {
   quoteResponse: QuoteResult;
   userPublicKey: string;
   feeAccount?: string;
+  apiKey?: string;
 }): Promise<{ swapTransaction: string; lastValidBlockHeight: number }> {
   const body: Record<string, unknown> = {
     quoteResponse: params.quoteResponse,
@@ -85,9 +96,14 @@ export async function getSwapTransaction(params: {
     body.feeAccount = params.feeAccount;
   }
 
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...buildHeaders(params.apiKey),
+  };
+
   const res = await fetchWithRetry(JUPITER_SWAP_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     body: JSON.stringify(body),
   });
 
