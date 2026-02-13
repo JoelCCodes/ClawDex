@@ -88,6 +88,12 @@ export async function resolveToken(symbolOrMint: string, apiKey?: string): Promi
     return { ...known };
   }
 
+  // Check known tokens by mint address
+  const knownByMint = Object.values(KNOWN_TOKENS).find((t) => t.mint === symbolOrMint);
+  if (knownByMint) {
+    return { ...knownByMint };
+  }
+
   // If it looks like a mint address, search the Jupiter token list
   if (isValidBase58(symbolOrMint)) {
     const tokens = await fetchTokenList(apiKey);

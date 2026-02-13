@@ -80,7 +80,7 @@ export function balancesCommand(): Command {
 
           let symbol = info.mint;
           try {
-            const tokenInfo = await resolveToken(info.mint);
+            const tokenInfo = await resolveToken(info.mint, config.jupiter_api_key || undefined);
             symbol = tokenInfo.symbol;
           } catch {
             // Use mint address as fallback
@@ -98,7 +98,8 @@ export function balancesCommand(): Command {
         if (mode === OutputMode.Json) {
           printResult(balances, mode);
         } else {
-          const tableRows = balances.map((b) => ({
+          const nonZero = balances.filter((b) => parseFloat(b.balance) > 0);
+          const tableRows = nonZero.map((b) => ({
             Token: b.symbol,
             Balance: b.balance,
             Mint: b.mint,

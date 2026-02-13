@@ -1,6 +1,7 @@
 import { Command } from 'commander';
 import { Connection } from '@solana/web3.js';
 import { createInterface } from 'readline';
+import { existsSync } from 'fs';
 import { loadConfig, setConfigValue, setSafetyValue, expandHome } from '../core/config.js';
 import { loadWallet, generateWallet } from '../core/wallet.js';
 import { fetchTokenList } from '../core/tokens.js';
@@ -38,6 +39,61 @@ function prompt(rl: ReturnType<typeof createInterface>, question: string): Promi
   return new Promise((resolve) => {
     rl.question(question, (answer) => resolve(answer.trim()));
   });
+}
+
+interface DetectedValue {
+  value: string;
+  source: string;
+  pubkey?: string;
+}
+
+interface Detected {
+  jupiterApiKey: DetectedValue | null;
+  rpc: DetectedValue | null;
+  wallet: DetectedValue | null;
+}
+
+function detect(existingConfig: ReturnType<typeof loadConfig>): Detected {
+  const result: Detected = { jupiterApiKey: null, rpc: null, wallet: null };
+
+  // Jupiter API key: env first, then config
+  if (process.env.JUPITER_API_KEY) {
+    result.jupiterApiKey = { value: process.env.JUPITER_API_KEY, source: 'from env' };
+  } else if (existingConfig.jupiter_api_key) {
+    result.jupiterApiKey = { value: existingConfig.jupiter_api_key, source: 'from config' };
+  }
+
+  // RPC: env first, then config (only if not the default)
+  if (process.env.CLAWDEX_RPC) {
+    result.rpc = { value: process.env.CLAWDEX_RPC, source: 'from env' };
+  } else if (existingConfig.rpc && existingConfig.rpc !== DEFAULT_RPC) {
+    result.rpc = { value: existingConfig.rpc, source: 'from config' };
+  }
+
+  // Wallet: config first (if file exists), then Solana CLI default
+  const SOLANA_CLI_WALLET = '~/.config/solana/id.json';
+  const candidates: { path: string; source: string }[] = [];
+  if (existingConfig.wallet) {
+    candidates.push({ path: existingConfig.wallet, source: 'from config' });
+  }
+  candidates.push({ path: SOLANA_CLI_WALLET, source: 'Solana CLI' });
+
+  for (const c of candidates) {
+    if (existsSync(expandHome(c.path))) {
+      const entry: DetectedValue = { value: c.path, source: c.source };
+      try {
+        const kp = loadWallet(c.path);
+        const pub = kp.publicKey.toBase58();
+        entry.pubkey = `${pub.slice(0, 4)}...${pub.slice(-4)}`;
+      } catch {
+        // file might be corrupt — show path without pubkey
+      }
+      result.wallet = entry;
+      break;
+    }
+  }
+
+  return result;
 }
 
 export function onboardingCommand(): Command {
@@ -110,51 +166,104 @@ export function onboardingCommand(): Command {
       } else {
         // Interactive mode
         const rl = createInterface({ input: process.stdin, output: process.stdout });
+        const detected = detect(existingConfig);
 
         console.log('\n  ClawDex Onboarding\n');
 
+        // Detection summary (only if something was detected)
+        const hasDetected = detected.jupiterApiKey || detected.rpc || detected.wallet;
+        if (hasDetected) {
+          console.log('  Detected:');
+          if (detected.jupiterApiKey) {
+            console.log(`    Jupiter API key  ${maskApiKey(detected.jupiterApiKey.value)} (${detected.jupiterApiKey.source})`);
+          }
+          if (detected.rpc) {
+            console.log(`    RPC              ${detected.rpc.value} (${detected.rpc.source})`);
+          }
+          if (detected.wallet) {
+            const pubSuffix = detected.wallet.pubkey ? ` — ${detected.wallet.pubkey}` : '';
+            console.log(`    Wallet           ${detected.wallet.value} (${detected.wallet.source})${pubSuffix}`);
+          }
+          console.log('');
+        }
+
         // Step 1: Jupiter API key
-        console.log('  Step 1/5: Jupiter API Key');
-        console.log('  Get a free key at https://portal.jup.ag/api-keys\n');
-        const defaultKey = existingConfig.jupiter_api_key || '';
-        const keyPrompt = defaultKey ? `  Jupiter API Key [${maskApiKey(defaultKey)}]: ` : '  Jupiter API Key []: ';
-        const keyAnswer = await prompt(rl, keyPrompt);
-        jupiterApiKey = keyAnswer || defaultKey;
+        console.log('  Step 1/4: Jupiter API Key');
+        if (detected.jupiterApiKey) {
+          console.log(`  Detected: ${maskApiKey(detected.jupiterApiKey.value)} (${detected.jupiterApiKey.source})`);
+          const keyAnswer = await prompt(rl, '  Press Enter to keep, or paste a new key: ');
+          jupiterApiKey = keyAnswer || detected.jupiterApiKey.value;
+        } else {
+          console.log('  Get a free key at https://portal.jup.ag/api-keys');
+          const keyAnswer = await prompt(rl, '  Jupiter API Key: ');
+          jupiterApiKey = keyAnswer;
+        }
 
         // Step 2: RPC
-        console.log('\n  Step 2/5: Solana RPC Endpoint\n');
-        const defaultRpc = existingConfig.rpc || DEFAULT_RPC;
-        const rpcAnswer = await prompt(rl, `  RPC URL [${defaultRpc}]: `);
-        rpc = rpcAnswer || defaultRpc;
+        console.log('\n  Step 2/4: Solana RPC Endpoint');
+        if (detected.rpc) {
+          console.log(`  Detected: ${detected.rpc.value} (${detected.rpc.source})`);
+          const rpcAnswer = await prompt(rl, '  Press Enter to keep, or enter a new URL: ');
+          rpc = rpcAnswer || detected.rpc.value;
+        } else {
+          const rpcAnswer = await prompt(rl, `  RPC URL [${DEFAULT_RPC}]: `);
+          rpc = rpcAnswer || DEFAULT_RPC;
+        }
 
         // Step 3: Wallet
-        console.log('\n  Step 3/5: Wallet\n');
-        const hasExistingAnswer = await prompt(rl, '  Do you have an existing wallet? (y/n) [y]: ');
-        const hasExisting = hasExistingAnswer.toLowerCase() !== 'n';
-
-        if (hasExisting) {
-          const defaultWallet = existingConfig.wallet || '~/.config/solana/id.json';
-          const walletAnswer = await prompt(rl, `  Wallet path [${defaultWallet}]: `);
-          walletPath = walletAnswer || defaultWallet;
+        console.log('\n  Step 3/4: Wallet');
+        if (detected.wallet) {
+          const pubSuffix = detected.wallet.pubkey ? ` — ${detected.wallet.pubkey}` : '';
+          console.log(`  Detected: ${detected.wallet.value} (${detected.wallet.source})${pubSuffix}`);
+          const useDetected = await prompt(rl, '  Use this wallet? (Y/n): ');
+          if (useDetected.toLowerCase() === 'n') {
+            const walletAnswer = await prompt(rl, '  Enter wallet path, or press Enter to generate a new one: ');
+            if (walletAnswer) {
+              walletPath = walletAnswer;
+            } else {
+              const walletOutputPath = opts.walletOutput || '~/.clawdex/wallet.json';
+              console.log(`  Generating new wallet at ${walletOutputPath}...`);
+              try {
+                const kp = generateWallet(walletOutputPath);
+                walletPath = walletOutputPath;
+                walletGenerated = true;
+                const pubkey = kp.publicKey.toBase58();
+                console.log(`  Created! Pubkey: ${pubkey.slice(0, 4)}...${pubkey.slice(-4)}`);
+              } catch (err) {
+                const msg = err instanceof Error ? err.message : String(err);
+                console.log(`  Error: ${msg}`);
+                rl.close();
+                process.exit(EXIT_CONFIG);
+              }
+            }
+          } else {
+            walletPath = detected.wallet.value;
+          }
         } else {
-          const walletOutputPath = opts.walletOutput || '~/.clawdex/wallet.json';
-          console.log(`  Generating new wallet at ${walletOutputPath}...`);
-          try {
-            const kp = generateWallet(walletOutputPath);
-            walletPath = walletOutputPath;
-            walletGenerated = true;
-            const pubkey = kp.publicKey.toBase58();
-            console.log(`  Created! Pubkey: ${pubkey.slice(0, 4)}...${pubkey.slice(-4)}`);
-          } catch (err) {
-            const msg = err instanceof Error ? err.message : String(err);
-            console.log(`  Error: ${msg}`);
-            rl.close();
-            process.exit(EXIT_CONFIG);
+          console.log('  No existing wallet found.');
+          const walletAnswer = await prompt(rl, '  Enter wallet path, or press Enter to generate a new one: ');
+          if (walletAnswer) {
+            walletPath = walletAnswer;
+          } else {
+            const walletOutputPath = opts.walletOutput || '~/.clawdex/wallet.json';
+            console.log(`  Generating new wallet at ${walletOutputPath}...`);
+            try {
+              const kp = generateWallet(walletOutputPath);
+              walletPath = walletOutputPath;
+              walletGenerated = true;
+              const pubkey = kp.publicKey.toBase58();
+              console.log(`  Created! Pubkey: ${pubkey.slice(0, 4)}...${pubkey.slice(-4)}`);
+            } catch (err) {
+              const msg = err instanceof Error ? err.message : String(err);
+              console.log(`  Error: ${msg}`);
+              rl.close();
+              process.exit(EXIT_CONFIG);
+            }
           }
         }
 
         // Step 4: Safety guardrails
-        console.log('\n  Step 4/5: Safety Guardrails (optional, press Enter to skip)\n');
+        console.log('\n  Step 4/4: Safety Guardrails (optional, press Enter to skip)\n');
         const slipAnswer = await prompt(rl, '  Max slippage (bps) []: ');
         if (slipAnswer) maxSlippageBps = slipAnswer;
 
@@ -164,7 +273,7 @@ export function onboardingCommand(): Command {
         const impactAnswer = await prompt(rl, '  Max price impact (bps) []: ');
         if (impactAnswer) maxPriceImpactBps = impactAnswer;
 
-        console.log('\n  Step 5/5: Validating...\n');
+        console.log('\n  Validating...\n');
 
         rl.close();
       }
@@ -184,11 +293,11 @@ export function onboardingCommand(): Command {
         const tokens = await fetchTokenList(jupiterApiKey);
         validation.jupiter_api_key.valid = true;
         validation.jupiter_api_key.token_count = tokens.length;
-        if (!isJson) console.log(`  Jupiter API key... OK (${tokens.length} tokens)`);
+        if (!isJson) console.log(`    Jupiter API key  OK (${tokens.length} tokens)`);
       } catch (err) {
         allValid = false;
         validation.jupiter_api_key.error = err instanceof Error ? err.message : String(err);
-        if (!isJson) console.log(`  Jupiter API key... FAIL (${validation.jupiter_api_key.error})`);
+        if (!isJson) console.log(`    Jupiter API key  FAIL (${validation.jupiter_api_key.error})`);
       }
 
       // Validate RPC
@@ -199,11 +308,11 @@ export function onboardingCommand(): Command {
         const latency = Math.round(performance.now() - start);
         validation.rpc.healthy = true;
         validation.rpc.latency_ms = latency;
-        if (!isJson) console.log(`  RPC endpoint...   OK (${latency}ms)`);
+        if (!isJson) console.log(`    RPC endpoint     OK (${latency}ms)`);
       } catch (err) {
         allValid = false;
         validation.rpc.error = err instanceof Error ? err.message : String(err);
-        if (!isJson) console.log(`  RPC endpoint...   FAIL (${validation.rpc.error})`);
+        if (!isJson) console.log(`    RPC endpoint     FAIL (${validation.rpc.error})`);
       }
 
       // Validate wallet
@@ -212,11 +321,11 @@ export function onboardingCommand(): Command {
         const pubkey = keypair.publicKey.toBase58();
         validation.wallet.valid = true;
         validation.wallet.pubkey = pubkey;
-        if (!isJson) console.log(`  Wallet...         OK (${pubkey.slice(0, 4)}...${pubkey.slice(-4)})`);
+        if (!isJson) console.log(`    Wallet           OK (${pubkey.slice(0, 4)}...${pubkey.slice(-4)})`);
       } catch (err) {
         allValid = false;
         validation.wallet.error = err instanceof Error ? err.message : String(err);
-        if (!isJson) console.log(`  Wallet...         FAIL (${validation.wallet.error})`);
+        if (!isJson) console.log(`    Wallet           FAIL (${validation.wallet.error})`);
       }
 
       // Write config only if all validations pass
@@ -267,7 +376,7 @@ export function onboardingCommand(): Command {
         printResult(result, OutputMode.Json);
       } else {
         if (allValid) {
-          console.log(`\n  Onboarding complete! Config written to ~/.clawdex/config.toml`);
+          console.log(`\n  Config written to ~/.clawdex/config.toml`);
           console.log('  Run `clawdex status` to verify, or `clawdex swap` to start trading.');
         } else {
           console.log('\n  Onboarding failed — fix the errors above and try again.');

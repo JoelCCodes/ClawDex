@@ -177,8 +177,8 @@ export function swapCommand(): Command {
       const slippageBps = opts.slippageBps != null ? Number(opts.slippageBps) : DEFAULT_SLIPPAGE_BPS;
       const feeBps = opts.feeBps != null ? Number(opts.feeBps) : config.fee_bps;
 
-      // Non-TTY without --yes: reject for agent safety
-      if (!opts.yes && !process.stdin.isTTY) {
+      // Non-TTY without --yes: reject for agent safety (simulation-only is safe)
+      if (!opts.yes && !opts.simulateOnly && !process.stdin.isTTY) {
         printError('Non-interactive mode requires --yes flag', mode, EXIT_GENERAL);
         process.exit(EXIT_GENERAL);
       }
@@ -275,6 +275,12 @@ export function swapCommand(): Command {
         } else {
           try {
             diff = await simulateAndDiff(connection, transaction, keypair.publicKey);
+
+            // Enrich token changes with symbols from the resolved tokens
+            for (const tc of diff.tokenChanges) {
+              if (tc.mint === inputToken.mint) tc.symbol = inputToken.symbol;
+              else if (tc.mint === outputToken.mint) tc.symbol = outputToken.symbol;
+            }
 
             // Validate transfers against known addresses
             const tokenMints = [inputToken.mint, outputToken.mint];
