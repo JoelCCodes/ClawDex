@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
 import { join } from 'path';
 import { mkdtemp, rm } from 'fs/promises';
 import { tmpdir } from 'os';
-import { existsSync, readFileSync, mkdirSync, writeFileSync } from 'fs';
+import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { Keypair } from '@solana/web3.js';
 import { parse as parseToml } from '@iarna/toml';
 
@@ -29,19 +29,6 @@ afterEach(async () => {
   await rm(tempDir, { recursive: true, force: true });
 });
 
-/** Pre-seed the Jupiter token cache so fetchTokenList doesn't hit the network */
-function seedTokenCache() {
-  const cacheDir = join(tempDir, '.clawdex');
-  if (!existsSync(cacheDir)) mkdirSync(cacheDir, { recursive: true });
-  const cache = {
-    timestamp: Date.now(),
-    tokens: [
-      { mint: 'So11111111111111111111111111111111111111112', symbol: 'SOL', name: 'Solana', decimals: 9 },
-      { mint: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', symbol: 'USDC', name: 'USD Coin', decimals: 6 },
-    ],
-  };
-  writeFileSync(join(cacheDir, 'token-cache.json'), JSON.stringify(cache), 'utf-8');
-}
 
 async function run(args: string[]): Promise<{ stdout: string; stderr: string; exitCode: number }> {
   const proc = Bun.spawn(['bun', 'run', CLI, ...args], {
@@ -67,7 +54,6 @@ function makeWallet(): { keypair: Keypair; path: string } {
 
 describe('onboarding', () => {
   it('produces valid JSON output with all required flags', async () => {
-    seedTokenCache();
     const { keypair, path: walletPath } = makeWallet();
 
     const { stdout, exitCode } = await run([
@@ -83,8 +69,9 @@ describe('onboarding', () => {
     expect(parsed.validation).toBeDefined();
     expect(parsed.validation.wallet.valid).toBe(true);
     expect(parsed.validation.wallet.pubkey).toBe(keypair.publicKey.toBase58());
-    expect(parsed.validation.jupiter_api_key.valid).toBe(true);
-    expect(parsed.validation.jupiter_api_key.token_count).toBe(2);
+    // API key validation uses a live quote request — with a test key it will fail softly
+    expect(parsed.validation.jupiter_api_key).toBeDefined();
+    expect(parsed.validation.jupiter_api_key.token_count).toBeNull();
 
     // If RPC was reachable, config should have been written
     if (parsed.validation.rpc.healthy) {
@@ -119,7 +106,6 @@ describe('onboarding', () => {
   });
 
   it('generates wallet with --generate-wallet + --json', async () => {
-    seedTokenCache();
     const walletOutput = join(tempDir, 'gen-wallet.json');
     const { stdout } = await run([
       'onboarding',
@@ -157,7 +143,6 @@ describe('onboarding', () => {
   });
 
   it('reports validation failure for invalid wallet path', async () => {
-    seedTokenCache();
     const { stdout, exitCode } = await run([
       'onboarding',
       '--jupiter-api-key', 'test-key-12345678',
@@ -174,7 +159,6 @@ describe('onboarding', () => {
   });
 
   it('writes safety values to TOML when provided', async () => {
-    seedTokenCache();
     const { path: walletPath } = makeWallet();
 
     const { stdout, exitCode } = await run([
@@ -202,7 +186,6 @@ describe('onboarding', () => {
   });
 
   it('uses defaults for optional flags', async () => {
-    seedTokenCache();
     const { path: walletPath } = makeWallet();
 
     const { stdout } = await run([
@@ -218,7 +201,6 @@ describe('onboarding', () => {
   });
 
   it('masks API key in JSON output', async () => {
-    seedTokenCache();
     const { path: walletPath } = makeWallet();
 
     const { stdout } = await run([
@@ -241,7 +223,6 @@ describe('onboarding', () => {
   });
 
   it('validation continues past first failure', async () => {
-    seedTokenCache();
     const { stdout, exitCode } = await run([
       'onboarding',
       '--jupiter-api-key', 'test-key-12345678',

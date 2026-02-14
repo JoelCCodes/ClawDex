@@ -4,10 +4,10 @@ import { createInterface } from 'readline';
 import { existsSync } from 'fs';
 import { loadConfig, setConfigValue, setSafetyValue, expandHome } from '../core/config.js';
 import { loadWallet, generateWallet } from '../core/wallet.js';
-import { fetchTokenList } from '../core/tokens.js';
+import { getQuote } from '../core/jupiter.js';
 import { printResult, printError } from '../core/output.js';
 import { OutputMode, EXIT_SUCCESS, EXIT_CONFIG } from '../types.js';
-import { DEFAULT_RPC } from '../constants.js';
+import { DEFAULT_RPC, SOL_MINT, USDC_MINT } from '../constants.js';
 
 interface OnboardingResult {
   success: boolean;
@@ -288,17 +288,29 @@ export function onboardingCommand(): Command {
 
       let allValid = true;
 
-      // Validate Jupiter API key (soft — warn but don't block config write)
+      // Validate Jupiter API key via a test quote (soft — warn but don't block config write)
       try {
-        const tokens = await fetchTokenList(jupiterApiKey);
+        await getQuote({
+          inputMint: SOL_MINT,
+          outputMint: USDC_MINT,
+          amount: '1000000',
+          slippageBps: 50,
+          apiKey: jupiterApiKey,
+        });
         validation.jupiter_api_key.valid = true;
-        validation.jupiter_api_key.token_count = tokens.length;
-        if (!isJson) console.log(`    Jupiter API key  OK (${tokens.length} tokens)`);
+        if (!isJson) console.log(`    Jupiter API key  OK`);
       } catch (err) {
-        // Soft failure: API key might be fine, network/DNS might be the issue
-        validation.jupiter_api_key.error = err instanceof Error ? err.message : String(err);
-        if (!isJson) console.log(`    Jupiter API key  WARN — could not verify (${validation.jupiter_api_key.error})`);
-        if (!isJson) console.log(`                     Key saved anyway — will be used on next command`);
+        const msg = err instanceof Error ? err.message : String(err);
+        if (msg.includes('401') || msg.includes('Unauthorized')) {
+          validation.jupiter_api_key.error = 'Invalid API key';
+          if (!isJson) console.log(`    Jupiter API key  WARN — invalid key (401 Unauthorized)`);
+          if (!isJson) console.log(`                     Key saved anyway — verify at https://portal.jup.ag/api-keys`);
+        } else {
+          // Soft failure: network/DNS issue — key might be fine
+          validation.jupiter_api_key.error = msg;
+          if (!isJson) console.log(`    Jupiter API key  WARN — could not verify (${msg})`);
+          if (!isJson) console.log(`                     Key saved anyway — will be used on next command`);
+        }
       }
 
       // Validate RPC
