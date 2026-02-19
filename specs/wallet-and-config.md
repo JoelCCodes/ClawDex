@@ -2,11 +2,11 @@
 
 ## Overview
 
-Clawdex uses a TOML config file and supports multiple wallet sources. Configuration is layered: defaults < config file < environment variables < CLI flags.
+Agentdex uses a TOML config file and supports multiple wallet sources. Configuration is layered: defaults < config file < environment variables < CLI flags.
 
 ## Config File
 
-Location: `~/.clawdex/config.toml`
+Location: `~/.agentdex/config.toml`
 
 ```toml
 # RPC endpoint
@@ -20,7 +20,7 @@ fee_bps = 20
 fee_account = "YourFeeWalletPublicKeyHere"
 
 # Receipt storage
-receipts_dir = "~/.clawdex/receipts"
+receipts_dir = "~/.agentdex/receipts"
 
 [safety]
 max_fee_bps = 100
@@ -34,11 +34,11 @@ max_trade_sol = 10.0
 ## Environment Variables
 
 Override any config value:
-- `CLAWDEX_RPC` - RPC endpoint
-- `CLAWDEX_WALLET` - Wallet keypair path
-- `CLAWDEX_FEE_BPS` - Integrator fee
-- `CLAWDEX_FEE_ACCOUNT` - Fee wallet public key
-- `CLAWDEX_RECEIPTS_DIR` - Receipt storage directory
+- `AGENTDEX_RPC` - RPC endpoint
+- `AGENTDEX_WALLET` - Wallet keypair path
+- `AGENTDEX_FEE_BPS` - Integrator fee
+- `AGENTDEX_FEE_ACCOUNT` - Fee wallet public key
+- `AGENTDEX_RECEIPTS_DIR` - Receipt storage directory
 
 ## Wallet Support
 
@@ -55,14 +55,14 @@ Override any config value:
 ## Requirements
 
 ### Core Functionality
-- Read and parse TOML config from `~/.clawdex/config.toml`
+- Read and parse TOML config from `~/.agentdex/config.toml`
 - Create config directory and default config if not exists on first run
 - Layer: defaults < config < env vars < CLI flags
 - Validate all config values on load (valid pubkeys, valid URLs, numeric ranges)
 
 ### Behavior
-- `clawdex config set key=value` writes to config file, preserving comments where possible
-- `clawdex safety set key=value` writes to `[safety]` section
+- `agentdex config set key=value` writes to config file, preserving comments where possible
+- `agentdex safety set key=value` writes to `[safety]` section
 - Missing config file: create with defaults, warn user to configure fee_account
 - Invalid config: fail with clear error message pointing to the bad field
 
@@ -74,7 +74,7 @@ Override any config value:
 
 ## Acceptance Criteria
 
-- [ ] Config file is read from `~/.clawdex/config.toml`
+- [ ] Config file is read from `~/.agentdex/config.toml`
 - [ ] Config directory is created if missing
 - [ ] Environment variables override config file values
 - [ ] CLI flags override environment variables

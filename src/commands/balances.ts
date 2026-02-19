@@ -28,7 +28,7 @@ export function balancesCommand(): Command {
       const walletPath = opts.wallet ?? cmd.parent?.getOptionValue('wallet') as string | undefined ?? config.wallet;
 
       if (!walletPath) {
-        printError('No wallet configured. Use --wallet or set via: clawdex config set wallet=<path>', mode, EXIT_GENERAL);
+        printError('No wallet configured. Use --wallet or set via: agentdex config set wallet=<path>', mode, EXIT_GENERAL);
         process.exit(EXIT_GENERAL);
       }
 

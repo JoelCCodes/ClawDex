@@ -111,7 +111,7 @@ export function sendCommand(): Command {
       const walletPath = opts.wallet ?? cmd.parent?.getOptionValue('wallet') as string | undefined ?? config.wallet;
 
       if (!walletPath) {
-        printError('No wallet configured. Use --wallet or set via: clawdex config set wallet=<path>', mode, EXIT_CONFIG);
+        printError('No wallet configured. Use --wallet or set via: agentdex config set wallet=<path>', mode, EXIT_CONFIG);
         process.exit(EXIT_CONFIG);
       }
 

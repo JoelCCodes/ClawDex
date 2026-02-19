@@ -20,7 +20,7 @@ let tempDir: string;
 const origFetch = globalThis.fetch;
 
 beforeEach(async () => {
-  tempDir = await mkdtemp(join(tmpdir(), 'clawdex-test-'));
+  tempDir = await mkdtemp(join(tmpdir(), 'agentdex-test-'));
   _fakeHome = tempDir;
 });
 

@@ -23,7 +23,7 @@ export interface SafetyConfig {
 }
 
 // Main config
-export interface ClawdexConfig {
+export interface AgentdexConfig {
   rpc: string;
   wallet: string;
   fee_bps: number;

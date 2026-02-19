@@ -2,7 +2,7 @@
 
 ## Overview
 
-Clawdex routes all swaps through the Jupiter aggregator API. This is the primary (and v1-only) execution path. Jupiter provides best-price routing across Solana liquidity venues and supports integrator fee collection.
+Agentdex routes all swaps through the Jupiter aggregator API. This is the primary (and v1-only) execution path. Jupiter provides best-price routing across Solana liquidity venues and supports integrator fee collection.
 
 ## API Endpoints
 

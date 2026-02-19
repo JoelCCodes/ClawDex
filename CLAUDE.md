@@ -1,33 +1,33 @@
-# ClawDex
+# AgentDex
 
 Solana DEX trading CLI powered by Jupiter. Swap any token, with simulation, safety guardrails, and full JSON output.
 
-- **Current version**: 0.3.3
-- **Package**: `npm install -g clawdex`
-- **Config**: `~/.clawdex/config.toml`
+- **Current version**: 0.4.0
+- **Package**: `npm install -g agentdex-trade`
+- **Config**: `~/.agentdex/config.toml`
 
-## For agents using ClawDex
+## For agents using AgentDex
 
 Install or upgrade:
 ```bash
-npm install -g clawdex@latest
+npm install -g agentdex-trade@latest
 ```
 
 All commands support `--json` for structured output. Agents must use `--json` and `--yes` flags.
 
 Typical agent workflow:
 ```bash
-clawdex status --json                                    # health check
-clawdex balances --json                                  # check wallet
-clawdex swap --in SOL --out USDC --amount 0.01 --simulate-only --json  # dry run
-clawdex swap --in SOL --out USDC --amount 0.01 --yes --json            # execute
-clawdex send --to <addr> --token SOL --amount 0.01 --yes --json        # transfer
+agentdex status --json                                    # health check
+agentdex balances --json                                  # check wallet
+agentdex swap --in SOL --out USDC --amount 0.01 --simulate-only --json  # dry run
+agentdex swap --in SOL --out USDC --amount 0.01 --yes --json            # execute
+agentdex send --to <addr> --token SOL --amount 0.01 --yes --json        # transfer
 ```
 
 See **EXAMPLES.md** for full CLI reference with expected outputs and JSON schemas.
 See **AGENT.md** for integration guide (setup, error handling, safety).
 
-## For agents developing ClawDex
+## For agents developing AgentDex
 
 ```bash
 bun run dev <command>       # run from source

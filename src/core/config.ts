@@ -4,7 +4,7 @@ import { parse as parseToml, stringify as stringifyToml } from '@iarna/toml';
 import type { JsonMap } from '@iarna/toml';
 import { homedir } from 'os';
 import { join } from 'path';
-import type { ClawdexConfig, SafetyConfig } from '../types.js';
+import type { AgentdexConfig, SafetyConfig } from '../types.js';
 import { EXIT_CONFIG } from '../types.js';
 import {
   CONFIG_DIR,
@@ -23,8 +23,8 @@ export function expandHome(p: string): string {
   return p;
 }
 
-/** Return a ClawdexConfig populated entirely with default values. */
-export function getDefaultConfig(): ClawdexConfig {
+/** Return a AgentdexConfig populated entirely with default values. */
+export function getDefaultConfig(): AgentdexConfig {
   return {
     rpc: DEFAULT_RPC,
     wallet: '',
@@ -37,8 +37,8 @@ export function getDefaultConfig(): ClawdexConfig {
   };
 }
 
-/** Load config from ~/.clawdex/config.toml, merging with defaults. */
-export function loadConfig(): ClawdexConfig {
+/** Load config from ~/.agentdex/config.toml, merging with defaults. */
+export function loadConfig(): AgentdexConfig {
   const defaults = getDefaultConfig();
   const filePath = expandHome(CONFIG_FILE);
 
@@ -77,15 +77,15 @@ export function loadConfig(): ClawdexConfig {
  * Throws an error if the resolved RPC URL is not in the safety rpc_allowlist
  * (when the list is non-empty).
  */
-export function resolveConfig(flags: Partial<ClawdexConfig> = {}): ClawdexConfig {
+export function resolveConfig(flags: Partial<AgentdexConfig> = {}): AgentdexConfig {
   const config = loadConfig();
 
   // Layer environment variables
-  if (process.env.CLAWDEX_RPC) config.rpc = process.env.CLAWDEX_RPC;
-  if (process.env.CLAWDEX_WALLET) config.wallet = process.env.CLAWDEX_WALLET;
-  if (process.env.CLAWDEX_FEE_BPS) config.fee_bps = Number(process.env.CLAWDEX_FEE_BPS);
-  if (process.env.CLAWDEX_FEE_ACCOUNT) config.fee_account = process.env.CLAWDEX_FEE_ACCOUNT;
-  if (process.env.CLAWDEX_RECEIPTS_DIR) config.receipts_dir = process.env.CLAWDEX_RECEIPTS_DIR;
+  if (process.env.AGENTDEX_RPC) config.rpc = process.env.AGENTDEX_RPC;
+  if (process.env.AGENTDEX_WALLET) config.wallet = process.env.AGENTDEX_WALLET;
+  if (process.env.AGENTDEX_FEE_BPS) config.fee_bps = Number(process.env.AGENTDEX_FEE_BPS);
+  if (process.env.AGENTDEX_FEE_ACCOUNT) config.fee_account = process.env.AGENTDEX_FEE_ACCOUNT;
+  if (process.env.AGENTDEX_RECEIPTS_DIR) config.receipts_dir = process.env.AGENTDEX_RECEIPTS_DIR;
   if (process.env.JUPITER_API_KEY) config.jupiter_api_key = process.env.JUPITER_API_KEY;
 
   // Layer CLI flags (override everything)

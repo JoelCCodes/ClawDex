@@ -28,13 +28,13 @@ export function setupFeesCommand(): Command {
 
       const feeWallet = config.fee_account;
       if (!feeWallet) {
-        printError('No fee_account configured. Set one with: clawdex config set fee_account=<pubkey>', mode, EXIT_CONFIG);
+        printError('No fee_account configured. Set one with: agentdex config set fee_account=<pubkey>', mode, EXIT_CONFIG);
         process.exit(EXIT_CONFIG);
       }
 
       const walletPath = opts.wallet ?? cmd.parent?.getOptionValue('wallet') as string | undefined ?? config.wallet;
       if (!walletPath) {
-        printError('No wallet configured. Use --wallet or set via: clawdex config set wallet=<path>', mode, EXIT_CONFIG);
+        printError('No wallet configured. Use --wallet or set via: agentdex config set wallet=<path>', mode, EXIT_CONFIG);
         process.exit(EXIT_CONFIG);
       }
 

@@ -9,16 +9,16 @@ let tempDir: string;
 let env: Record<string, string>;
 
 beforeEach(async () => {
-  tempDir = await mkdtemp(join(tmpdir(), 'clawdex-cmd-balances-'));
+  tempDir = await mkdtemp(join(tmpdir(), 'agentdex-cmd-balances-'));
   env = {
     ...process.env as Record<string, string>,
     HOME: tempDir,
   };
-  delete env.CLAWDEX_RPC;
-  delete env.CLAWDEX_WALLET;
-  delete env.CLAWDEX_FEE_BPS;
-  delete env.CLAWDEX_FEE_ACCOUNT;
-  delete env.CLAWDEX_RECEIPTS_DIR;
+  delete env.AGENTDEX_RPC;
+  delete env.AGENTDEX_WALLET;
+  delete env.AGENTDEX_FEE_BPS;
+  delete env.AGENTDEX_FEE_ACCOUNT;
+  delete env.AGENTDEX_RECEIPTS_DIR;
 });
 
 afterEach(async () => {
@@ -81,7 +81,7 @@ describe('balances', () => {
     await Bun.write(keypairPath, JSON.stringify(Array.from(keypair.secretKey)));
 
     // Point to a localhost RPC that will fail, but we can check stdout for the pubkey
-    env.CLAWDEX_RPC = 'http://127.0.0.1:1';
+    env.AGENTDEX_RPC = 'http://127.0.0.1:1';
     const { stderr } = await run(['balances', '--wallet', keypairPath]);
     // Should get past wallet loading phase
     expect(stderr).not.toContain('No wallet configured');
@@ -94,7 +94,7 @@ describe('balances', () => {
     const keypairPath = join(tempDir, 'wallet.json');
     await Bun.write(keypairPath, JSON.stringify(Array.from(keypair.secretKey)));
 
-    env.CLAWDEX_RPC = 'http://127.0.0.1:1';
+    env.AGENTDEX_RPC = 'http://127.0.0.1:1';
     const { exitCode, stderr } = await run(['balances', '--wallet', keypairPath, '--json']);
     expect(exitCode).toBe(1);
 

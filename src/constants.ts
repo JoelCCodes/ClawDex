@@ -38,11 +38,11 @@ export const COMMON_FEE_MINTS: { symbol: string; mint: string }[] = [
 ];
 
 // Config paths
-export const CONFIG_DIR = '~/.clawdex';
-export const CONFIG_FILE = '~/.clawdex/config.toml';
-export const TOKEN_CACHE_FILE = '~/.clawdex/token-cache.json';
-export const RECEIPTS_DIR = '~/.clawdex/receipts';
-export const RECEIPTS_FILE = '~/.clawdex/receipts/receipts.jsonl';
+export const CONFIG_DIR = '~/.agentdex';
+export const CONFIG_FILE = '~/.agentdex/config.toml';
+export const TOKEN_CACHE_FILE = '~/.agentdex/token-cache.json';
+export const RECEIPTS_DIR = '~/.agentdex/receipts';
+export const RECEIPTS_FILE = '~/.agentdex/receipts/receipts.jsonl';
 
 // Defaults
 export const DEFAULT_RPC = 'https://api.mainnet-beta.solana.com';

@@ -8,7 +8,7 @@ import { writeFileAtomic } from '../../src/core/fs.js';
 let tempDir: string;
 
 beforeEach(async () => {
-  tempDir = await mkdtemp(join(tmpdir(), 'clawdex-fs-test-'));
+  tempDir = await mkdtemp(join(tmpdir(), 'agentdex-fs-test-'));
 });
 
 afterEach(async () => {

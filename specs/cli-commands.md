@@ -2,11 +2,11 @@
 
 ## Overview
 
-The `clawdex` CLI provides commands for quoting, swapping, and managing configuration for Solana DEX trading via Jupiter aggregator.
+The `agentdex` CLI provides commands for quoting, swapping, and managing configuration for Solana DEX trading via Jupiter aggregator.
 
 ## Commands
 
-### `clawdex status`
+### `agentdex status`
 
 Health check command. Verifies:
 - RPC endpoint connectivity and latency
@@ -17,7 +17,7 @@ Health check command. Verifies:
 Output (human): status summary with green/red indicators.
 Output (JSON): `{ "rpc": { "url": "...", "healthy": true, "latency_ms": 42 }, "wallet": { "configured": true, "pubkey": "..." }, "fee_account": { "configured": true, "pubkey": "..." }, "token_list": { "loaded": true, "count": 1234 } }`
 
-### `clawdex balances [--wallet <path>]`
+### `agentdex balances [--wallet <path>]`
 
 Show SOL and token balances for the configured (or specified) wallet.
 
@@ -27,7 +27,7 @@ Options:
 
 Output (JSON): `{ "wallet": "...", "sol": "1.234", "tokens": [{ "mint": "...", "symbol": "USDC", "amount": "100.00", "decimals": 6 }] }`
 
-### `clawdex quote`
+### `agentdex quote`
 
 Get a swap quote without executing.
 
@@ -58,7 +58,7 @@ Output (JSON):
 }
 ```
 
-### `clawdex swap`
+### `agentdex swap`
 
 Execute a swap. Builds, simulates, displays summary, then signs/sends.
 
@@ -125,26 +125,26 @@ Exit codes:
 - 4: Transaction send/confirm failed
 - 5: Configuration error
 
-### `clawdex receipt <txsig>`
+### `agentdex receipt <txsig>`
 
 Look up a stored receipt by transaction signature.
 
 Output: the stored receipt JSON, or error if not found.
 
-### `clawdex config set <key=value> [key=value ...]`
+### `agentdex config set <key=value> [key=value ...]`
 
-Set configuration values. Writes to `~/.clawdex/config.toml`.
+Set configuration values. Writes to `~/.agentdex/config.toml`.
 
 Keys:
 - `rpc` - RPC endpoint URL
 - `fee_bps` - Default integrator fee in basis points
 - `fee_account` - Integrator fee account public key
 - `wallet` - Path to wallet keypair file
-- `receipts_dir` - Directory for receipt storage (default: `~/.clawdex/receipts/`)
+- `receipts_dir` - Directory for receipt storage (default: `~/.agentdex/receipts/`)
 
-### `clawdex safety set <key=value> [key=value ...]`
+### `agentdex safety set <key=value> [key=value ...]`
 
-Set safety guardrail values. Writes to `~/.clawdex/config.toml` under `[safety]`.
+Set safety guardrail values. Writes to `~/.agentdex/config.toml` under `[safety]`.
 
 Keys:
 - `max_fee_bps` - Maximum allowed integrator fee

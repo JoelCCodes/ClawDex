@@ -11,17 +11,17 @@ let tempDir: string;
 let env: Record<string, string>;
 
 beforeEach(async () => {
-  tempDir = await mkdtemp(join(tmpdir(), 'clawdex-cmd-config-'));
+  tempDir = await mkdtemp(join(tmpdir(), 'agentdex-cmd-config-'));
   env = {
     ...process.env as Record<string, string>,
     HOME: tempDir,
   };
-  // Clear any CLAWDEX env vars
-  delete env.CLAWDEX_RPC;
-  delete env.CLAWDEX_WALLET;
-  delete env.CLAWDEX_FEE_BPS;
-  delete env.CLAWDEX_FEE_ACCOUNT;
-  delete env.CLAWDEX_RECEIPTS_DIR;
+  // Clear any AGENTDEX env vars
+  delete env.AGENTDEX_RPC;
+  delete env.AGENTDEX_WALLET;
+  delete env.AGENTDEX_FEE_BPS;
+  delete env.AGENTDEX_FEE_ACCOUNT;
+  delete env.AGENTDEX_RECEIPTS_DIR;
 });
 
 afterEach(async () => {
@@ -48,7 +48,7 @@ describe('config set', () => {
     const { exitCode } = await run(['config', 'set', 'rpc=https://my-rpc.example.com']);
     expect(exitCode).toBe(0);
 
-    const configPath = join(tempDir, '.clawdex', 'config.toml');
+    const configPath = join(tempDir, '.agentdex', 'config.toml');
     const parsed = parseToml(readFileSync(configPath, 'utf-8'));
     expect(parsed.rpc).toBe('https://my-rpc.example.com');
   });
@@ -57,7 +57,7 @@ describe('config set', () => {
     const { exitCode } = await run(['config', 'set', 'rpc=https://rpc.test', 'wallet=~/w.json']);
     expect(exitCode).toBe(0);
 
-    const configPath = join(tempDir, '.clawdex', 'config.toml');
+    const configPath = join(tempDir, '.agentdex', 'config.toml');
     const parsed = parseToml(readFileSync(configPath, 'utf-8'));
     expect(parsed.rpc).toBe('https://rpc.test');
     expect(parsed.wallet).toBe('~/w.json');
@@ -67,7 +67,7 @@ describe('config set', () => {
     const { exitCode } = await run(['config', 'set', 'fee_bps=42']);
     expect(exitCode).toBe(0);
 
-    const configPath = join(tempDir, '.clawdex', 'config.toml');
+    const configPath = join(tempDir, '.agentdex', 'config.toml');
     const parsed = parseToml(readFileSync(configPath, 'utf-8'));
     expect(parsed.fee_bps).toBe(42);
   });

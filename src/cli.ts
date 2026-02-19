@@ -15,7 +15,7 @@ import { walletCommand } from './commands/wallet.js';
 const program = new Command();
 
 program
-  .name('clawdex')
+  .name('agentdex')
   .description('Solana DEX trading CLI powered by Jupiter')
   .version('0.3.2')
   .showHelpAfterError()

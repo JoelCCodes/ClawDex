@@ -1,4 +1,4 @@
-# ClawDex CLI Examples
+# AgentDex CLI Examples
 
 Reference for agents and integrators showing expected inputs and outputs.
 
@@ -7,7 +7,7 @@ Reference for agents and integrators showing expected inputs and outputs.
 ### Non-interactive onboarding (for agents/CI)
 
 ```bash
-clawdex onboarding \
+agentdex onboarding \
   --jupiter-api-key YOUR_KEY \
   --rpc https://api.mainnet-beta.solana.com \
   --wallet ~/.config/solana/id.json \
@@ -26,7 +26,7 @@ clawdex onboarding \
     "fee_bps": 20,
     "fee_account": "76JTogdqp98XRkBXMdEz77P36Gq4LjikRdqzqKGqHKK8",
     "auto_create_fee_ata": true,
-    "receipts_dir": "~/.clawdex/receipts"
+    "receipts_dir": "~/.agentdex/receipts"
   },
   "validation": {
     "jupiter_api_key": { "valid": true, "token_count": 1423 },
@@ -40,18 +40,18 @@ clawdex onboarding \
 ### Generate a new wallet
 
 ```bash
-clawdex onboarding \
+agentdex onboarding \
   --jupiter-api-key YOUR_KEY \
   --rpc https://api.mainnet-beta.solana.com \
   --generate-wallet \
-  --wallet-output ~/.clawdex/wallet.json \
+  --wallet-output ~/.agentdex/wallet.json \
   --json
 ```
 
 ## Health Check
 
 ```bash
-clawdex status --json
+agentdex status --json
 ```
 
 ```json
@@ -81,7 +81,7 @@ clawdex status --json
 ### Human output
 
 ```bash
-clawdex balances
+agentdex balances
 ```
 
 ```
@@ -97,7 +97,7 @@ Zero-balance token accounts are hidden in human output.
 ### JSON output
 
 ```bash
-clawdex balances --json
+agentdex balances --json
 ```
 
 ```json
@@ -124,7 +124,7 @@ JSON output includes all token accounts (including zero-balance) for completenes
 ## Quoting
 
 ```bash
-clawdex quote --in SOL --out USDC --amount 0.01 --json
+agentdex quote --in SOL --out USDC --amount 0.01 --json
 ```
 
 Tokens can be specified by symbol (`SOL`, `USDC`, `USDT`) or mint address.
@@ -134,7 +134,7 @@ Tokens can be specified by symbol (`SOL`, `USDC`, `USDT`) or mint address.
 ### Simulate first (no `--yes` required)
 
 ```bash
-clawdex swap --in USDC --out SOL --amount 0.76 --simulate-only
+agentdex swap --in USDC --out SOL --amount 0.76 --simulate-only
 ```
 
 ```
@@ -154,7 +154,7 @@ Transfer Summary:
 ### Execute a swap (interactive confirmation)
 
 ```bash
-clawdex swap --in USDC --out SOL --amount 0.760259
+agentdex swap --in USDC --out SOL --amount 0.760259
 ```
 
 ```
@@ -183,7 +183,7 @@ Swap successful!
 ### Execute without confirmation (for agents)
 
 ```bash
-clawdex swap --in SOL --out USDC --amount 0.005 --yes
+agentdex swap --in SOL --out USDC --amount 0.005 --yes
 ```
 
 The `--yes` flag is required for non-interactive (non-TTY) environments. Simulation-only mode does not require it.
@@ -191,7 +191,7 @@ The `--yes` flag is required for non-interactive (non-TTY) environments. Simulat
 ### JSON swap output
 
 ```bash
-clawdex swap --in SOL --out USDC --amount 0.005 --yes --json
+agentdex swap --in SOL --out USDC --amount 0.005 --yes --json
 ```
 
 ```json
@@ -215,7 +215,7 @@ clawdex swap --in SOL --out USDC --amount 0.005 --yes --json
 ### Simulate a send (no `--yes` required)
 
 ```bash
-clawdex send --to 7xKp...3mFv --token SOL --amount 0.01 --simulate-only
+agentdex send --to 7xKp...3mFv --token SOL --amount 0.01 --simulate-only
 ```
 
 ```
@@ -232,7 +232,7 @@ Transfer Summary:
 ### Execute a send (interactive confirmation)
 
 ```bash
-clawdex send --to 7xKp...3mFv --token SOL --amount 0.01
+agentdex send --to 7xKp...3mFv --token SOL --amount 0.01
 ```
 
 ```
@@ -254,7 +254,7 @@ Send successful!
 ### Execute without confirmation (for agents)
 
 ```bash
-clawdex send --to 7xKp...3mFv --token SOL --amount 0.01 --yes --json
+agentdex send --to 7xKp...3mFv --token SOL --amount 0.01 --yes --json
 ```
 
 ### JSON send output
@@ -273,23 +273,23 @@ clawdex send --to 7xKp...3mFv --token SOL --amount 0.01 --yes --json
 ### Send an SPL token
 
 ```bash
-clawdex send --to 7xKp...3mFv --token USDC --amount 5 --yes --json
+agentdex send --to 7xKp...3mFv --token USDC --amount 5 --yes --json
 ```
 
-If the recipient doesn't have a token account for that token, ClawDex creates one automatically (sender pays the rent).
+If the recipient doesn't have a token account for that token, AgentDex creates one automatically (sender pays the rent).
 
 ## Safety Guardrails
 
 ### Set limits
 
 ```bash
-clawdex safety set max_slippage_bps=300 max_trade_sol=1 max_price_impact_bps=100
+agentdex safety set max_slippage_bps=300 max_trade_sol=1 max_price_impact_bps=100
 ```
 
 ### Set via onboarding
 
 ```bash
-clawdex onboarding \
+agentdex onboarding \
   --jupiter-api-key YOUR_KEY \
   --rpc https://api.mainnet-beta.solana.com \
   --wallet ~/.config/solana/id.json \
@@ -315,12 +315,12 @@ When a swap violates a guardrail, it exits with code 3 (`EXIT_SAFETY`):
 ### Set individual values
 
 ```bash
-clawdex config set rpc=https://my-rpc.example.com
-clawdex config set wallet=~/.config/solana/id.json
-clawdex config set jupiter_api_key=YOUR_KEY
+agentdex config set rpc=https://my-rpc.example.com
+agentdex config set wallet=~/.config/solana/id.json
+agentdex config set jupiter_api_key=YOUR_KEY
 ```
 
-Config is stored at `~/.clawdex/config.toml`.
+Config is stored at `~/.agentdex/config.toml`.
 
 ## Exit Codes
 
@@ -337,22 +337,22 @@ Config is stored at `~/.clawdex/config.toml`.
 
 ```bash
 # 1. Check health
-clawdex status --json
+agentdex status --json
 
 # 2. Check balances
-clawdex balances --json
+agentdex balances --json
 
 # 3. Get a quote
-clawdex quote --in SOL --out USDC --amount 0.01 --json
+agentdex quote --in SOL --out USDC --amount 0.01 --json
 
 # 4. Simulate
-clawdex swap --in SOL --out USDC --amount 0.01 --simulate-only --json
+agentdex swap --in SOL --out USDC --amount 0.01 --simulate-only --json
 
 # 5. Execute
-clawdex swap --in SOL --out USDC --amount 0.01 --yes --json
+agentdex swap --in SOL --out USDC --amount 0.01 --yes --json
 
 # 6. Send tokens to another wallet
-clawdex send --to <address> --token SOL --amount 0.01 --yes --json
+agentdex send --to <address> --token SOL --amount 0.01 --yes --json
 ```
 
 All commands support `--json` for machine-readable output. Agents should always use `--json` and `--yes` flags.

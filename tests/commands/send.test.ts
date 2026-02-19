@@ -15,7 +15,7 @@ let keypair: Keypair;
 let recipientAddress: string;
 
 beforeEach(async () => {
-  tempDir = await mkdtemp(join(tmpdir(), 'clawdex-cmd-send-'));
+  tempDir = await mkdtemp(join(tmpdir(), 'agentdex-cmd-send-'));
   keypair = Keypair.generate();
   keypairPath = join(tempDir, 'wallet.json');
   await Bun.write(keypairPath, JSON.stringify(Array.from(keypair.secretKey)));
@@ -26,11 +26,11 @@ beforeEach(async () => {
     ...process.env as Record<string, string>,
     HOME: tempDir,
   };
-  delete env.CLAWDEX_RPC;
-  delete env.CLAWDEX_WALLET;
-  delete env.CLAWDEX_FEE_BPS;
-  delete env.CLAWDEX_FEE_ACCOUNT;
-  delete env.CLAWDEX_RECEIPTS_DIR;
+  delete env.AGENTDEX_RPC;
+  delete env.AGENTDEX_WALLET;
+  delete env.AGENTDEX_FEE_BPS;
+  delete env.AGENTDEX_FEE_ACCOUNT;
+  delete env.AGENTDEX_RECEIPTS_DIR;
 });
 
 afterEach(async () => {
@@ -137,7 +137,7 @@ mock.module('${srcRoot}/core/config.js', () => ({
     wallet: process.env.MOCK_WALLET_PATH || '',
     fee_bps: 0,
     fee_account: '',
-    receipts_dir: process.env.HOME + '/.clawdex/receipts',
+    receipts_dir: process.env.HOME + '/.agentdex/receipts',
     safety: safetyMaxTradeSol != null ? { max_trade_sol: safetyMaxTradeSol } : {},
   }),
   expandHome: (p: string) => p.startsWith('~') ? p.replace('~', process.env.HOME!) : p,
@@ -175,7 +175,7 @@ const { sendCommand } = await import('${srcRoot}/commands/send.js');
 
 const program = new Command();
 program
-  .name('clawdex')
+  .name('agentdex')
   .enablePositionalOptions()
   .passThroughOptions()
   .option('--json', 'Output in JSON format')
@@ -187,7 +187,7 @@ const originalExit = process.exit;
 process.exit = ((code?: number) => {
   if (storedReceipts.length > 0) {
     const { writeFileSync, mkdirSync, existsSync } = require('fs');
-    const dir = process.env.HOME + '/.clawdex';
+    const dir = process.env.HOME + '/.agentdex';
     if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
     writeFileSync(dir + '/test-receipts.json', JSON.stringify(storedReceipts));
   }
@@ -222,7 +222,7 @@ async function runDriver(
 
 function readTestReceipts(): unknown[] {
   try {
-    const content = readFileSync(join(tempDir, '.clawdex', 'test-receipts.json'), 'utf-8');
+    const content = readFileSync(join(tempDir, '.agentdex', 'test-receipts.json'), 'utf-8');
     return JSON.parse(content);
   } catch {
     return [];

@@ -64,8 +64,8 @@ function detect(existingConfig: ReturnType<typeof loadConfig>): Detected {
   }
 
   // RPC: env first, then config (only if not the default)
-  if (process.env.CLAWDEX_RPC) {
-    result.rpc = { value: process.env.CLAWDEX_RPC, source: 'from env' };
+  if (process.env.AGENTDEX_RPC) {
+    result.rpc = { value: process.env.AGENTDEX_RPC, source: 'from env' };
   } else if (existingConfig.rpc && existingConfig.rpc !== DEFAULT_RPC) {
     result.rpc = { value: existingConfig.rpc, source: 'from config' };
   }
@@ -98,12 +98,12 @@ function detect(existingConfig: ReturnType<typeof loadConfig>): Detected {
 
 export function onboardingCommand(): Command {
   const cmd = new Command('onboarding')
-    .description('Configure ClawDex in one step — API key, RPC, wallet, and safety guardrails')
+    .description('Configure AgentDex in one step — API key, RPC, wallet, and safety guardrails')
     .option('--jupiter-api-key <key>', 'Jupiter API key')
     .option('--rpc <url>', 'Solana RPC endpoint')
     .option('--wallet <path>', 'Path to existing keypair JSON')
     .option('--generate-wallet', 'Generate a new wallet instead')
-    .option('--wallet-output <path>', 'Where to save generated wallet', '~/.clawdex/wallet.json')
+    .option('--wallet-output <path>', 'Where to save generated wallet', '~/.agentdex/wallet.json')
     .option('--fee-bps <n>', 'Platform fee bps')
     .option('--fee-account <pubkey>', 'Fee wallet pubkey')
     .option('--auto-create-fee-ata <bool>', 'Auto-create fee ATAs')
@@ -168,7 +168,7 @@ export function onboardingCommand(): Command {
         const rl = createInterface({ input: process.stdin, output: process.stdout });
         const detected = detect(existingConfig);
 
-        console.log('\n  ClawDex Onboarding\n');
+        console.log('\n  AgentDex Onboarding\n');
 
         // Detection summary (only if something was detected)
         const hasDetected = detected.jupiterApiKey || detected.rpc || detected.wallet;
@@ -221,7 +221,7 @@ export function onboardingCommand(): Command {
             if (walletAnswer) {
               walletPath = walletAnswer;
             } else {
-              const walletOutputPath = opts.walletOutput || '~/.clawdex/wallet.json';
+              const walletOutputPath = opts.walletOutput || '~/.agentdex/wallet.json';
               console.log(`  Generating new wallet at ${walletOutputPath}...`);
               try {
                 const kp = generateWallet(walletOutputPath);
@@ -245,7 +245,7 @@ export function onboardingCommand(): Command {
           if (walletAnswer) {
             walletPath = walletAnswer;
           } else {
-            const walletOutputPath = opts.walletOutput || '~/.clawdex/wallet.json';
+            const walletOutputPath = opts.walletOutput || '~/.agentdex/wallet.json';
             console.log(`  Generating new wallet at ${walletOutputPath}...`);
             try {
               const kp = generateWallet(walletOutputPath);
@@ -389,11 +389,11 @@ export function onboardingCommand(): Command {
         printResult(result, OutputMode.Json);
       } else {
         if (allValid) {
-          console.log(`\n  Config written to ~/.clawdex/config.toml`);
+          console.log(`\n  Config written to ~/.agentdex/config.toml`);
           if (!validation.jupiter_api_key.valid) {
             console.log('  Note: Jupiter API key could not be verified but was saved.');
           }
-          console.log('  Run `clawdex status` to verify, or `clawdex swap` to start trading.');
+          console.log('  Run `agentdex status` to verify, or `agentdex swap` to start trading.');
         } else {
           console.log('\n  Onboarding failed — fix the errors above and try again.');
         }

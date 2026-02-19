@@ -1,8 +1,8 @@
 rpc = "https://api.mainnet-beta.solana.com"
-wallet = "~/.clawdex/wallet.json"
+wallet = "~/.agentdex/wallet.json"
 fee_bps = 50
 fee_account = "FEEaccountxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-receipts_dir = "~/.clawdex/receipts"
+receipts_dir = "~/.agentdex/receipts"
 
 [safety]
 max_fee_bps = 100

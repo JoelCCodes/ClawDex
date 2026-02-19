@@ -62,7 +62,7 @@ When `--yes --json` is used (agent mode):
 ## Receipt Storage
 
 After successful swap:
-- Store receipt as JSONL in `receipts_dir` (default `~/.clawdex/receipts/`)
+- Store receipt as JSONL in `receipts_dir` (default `~/.agentdex/receipts/`)
 - Filename: `receipts.jsonl` (append-only)
 - Each line is a JSON object with:
   - `timestamp` (ISO 8601)

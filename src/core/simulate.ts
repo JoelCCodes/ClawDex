@@ -16,8 +16,8 @@ import {
 } from '../constants.js';
 
 const debug = (...args: unknown[]) => {
-  if (process.env.DEBUG?.includes('clawdex')) {
-    console.error('[clawdex:simulate]', ...args);
+  if (process.env.DEBUG?.includes('agentdex')) {
+    console.error('[agentdex:simulate]', ...args);
   }
 };
 

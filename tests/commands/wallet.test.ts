@@ -11,16 +11,16 @@ let tempDir: string;
 let env: Record<string, string>;
 
 beforeEach(async () => {
-  tempDir = await mkdtemp(join(tmpdir(), 'clawdex-cmd-wallet-'));
+  tempDir = await mkdtemp(join(tmpdir(), 'agentdex-cmd-wallet-'));
   env = {
     ...process.env as Record<string, string>,
     HOME: tempDir,
   };
-  delete env.CLAWDEX_RPC;
-  delete env.CLAWDEX_WALLET;
-  delete env.CLAWDEX_FEE_BPS;
-  delete env.CLAWDEX_FEE_ACCOUNT;
-  delete env.CLAWDEX_RECEIPTS_DIR;
+  delete env.AGENTDEX_RPC;
+  delete env.AGENTDEX_WALLET;
+  delete env.AGENTDEX_FEE_BPS;
+  delete env.AGENTDEX_FEE_ACCOUNT;
+  delete env.AGENTDEX_RECEIPTS_DIR;
   delete env.JUPITER_API_KEY;
 });
 
@@ -49,7 +49,7 @@ describe('wallet', () => {
     const keypairPath = join(tempDir, 'wallet.json');
     await Bun.write(keypairPath, JSON.stringify(Array.from(keypair.secretKey)));
 
-    env.CLAWDEX_WALLET = keypairPath;
+    env.AGENTDEX_WALLET = keypairPath;
     const { stdout, exitCode } = await run(['wallet', '--json']);
     expect(exitCode).toBe(0);
 

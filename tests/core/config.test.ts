@@ -34,29 +34,29 @@ let origEnvFeeAccount: string | undefined;
 let origEnvReceiptsDir: string | undefined;
 
 beforeEach(async () => {
-  tempDir = await mkdtemp(join(tmpdir(), 'clawdex-test-'));
+  tempDir = await mkdtemp(join(tmpdir(), 'agentdex-test-'));
   _fakeHome = tempDir;
 
-  // Save and clear CLAWDEX env vars
-  origEnvRpc = process.env.CLAWDEX_RPC;
-  origEnvWallet = process.env.CLAWDEX_WALLET;
-  origEnvFeeBps = process.env.CLAWDEX_FEE_BPS;
-  origEnvFeeAccount = process.env.CLAWDEX_FEE_ACCOUNT;
-  origEnvReceiptsDir = process.env.CLAWDEX_RECEIPTS_DIR;
-  delete process.env.CLAWDEX_RPC;
-  delete process.env.CLAWDEX_WALLET;
-  delete process.env.CLAWDEX_FEE_BPS;
-  delete process.env.CLAWDEX_FEE_ACCOUNT;
-  delete process.env.CLAWDEX_RECEIPTS_DIR;
+  // Save and clear AGENTDEX env vars
+  origEnvRpc = process.env.AGENTDEX_RPC;
+  origEnvWallet = process.env.AGENTDEX_WALLET;
+  origEnvFeeBps = process.env.AGENTDEX_FEE_BPS;
+  origEnvFeeAccount = process.env.AGENTDEX_FEE_ACCOUNT;
+  origEnvReceiptsDir = process.env.AGENTDEX_RECEIPTS_DIR;
+  delete process.env.AGENTDEX_RPC;
+  delete process.env.AGENTDEX_WALLET;
+  delete process.env.AGENTDEX_FEE_BPS;
+  delete process.env.AGENTDEX_FEE_ACCOUNT;
+  delete process.env.AGENTDEX_RECEIPTS_DIR;
 });
 
 afterEach(async () => {
   // Restore env vars
-  if (origEnvRpc !== undefined) process.env.CLAWDEX_RPC = origEnvRpc; else delete process.env.CLAWDEX_RPC;
-  if (origEnvWallet !== undefined) process.env.CLAWDEX_WALLET = origEnvWallet; else delete process.env.CLAWDEX_WALLET;
-  if (origEnvFeeBps !== undefined) process.env.CLAWDEX_FEE_BPS = origEnvFeeBps; else delete process.env.CLAWDEX_FEE_BPS;
-  if (origEnvFeeAccount !== undefined) process.env.CLAWDEX_FEE_ACCOUNT = origEnvFeeAccount; else delete process.env.CLAWDEX_FEE_ACCOUNT;
-  if (origEnvReceiptsDir !== undefined) process.env.CLAWDEX_RECEIPTS_DIR = origEnvReceiptsDir; else delete process.env.CLAWDEX_RECEIPTS_DIR;
+  if (origEnvRpc !== undefined) process.env.AGENTDEX_RPC = origEnvRpc; else delete process.env.AGENTDEX_RPC;
+  if (origEnvWallet !== undefined) process.env.AGENTDEX_WALLET = origEnvWallet; else delete process.env.AGENTDEX_WALLET;
+  if (origEnvFeeBps !== undefined) process.env.AGENTDEX_FEE_BPS = origEnvFeeBps; else delete process.env.AGENTDEX_FEE_BPS;
+  if (origEnvFeeAccount !== undefined) process.env.AGENTDEX_FEE_ACCOUNT = origEnvFeeAccount; else delete process.env.AGENTDEX_FEE_ACCOUNT;
+  if (origEnvReceiptsDir !== undefined) process.env.AGENTDEX_RECEIPTS_DIR = origEnvReceiptsDir; else delete process.env.AGENTDEX_RECEIPTS_DIR;
 
   await rm(tempDir, { recursive: true, force: true });
 });
@@ -85,8 +85,8 @@ describe('loadConfig', () => {
   });
 
   it('parses valid TOML config correctly', async () => {
-    const clawdexDir = join(tempDir, '.clawdex');
-    await Bun.write(join(clawdexDir, 'config.toml'), [
+    const agentdexDir = join(tempDir, '.agentdex');
+    await Bun.write(join(agentdexDir, 'config.toml'), [
       'rpc = "https://custom-rpc.example.com"',
       'wallet = "~/my-wallet.json"',
       'fee_bps = 50',
@@ -119,8 +119,8 @@ describe('resolveConfig', () => {
   });
 
   it('config file overrides defaults', async () => {
-    const clawdexDir = join(tempDir, '.clawdex');
-    await Bun.write(join(clawdexDir, 'config.toml'), 'rpc = "https://file-rpc.com"\nfee_bps = 25\n');
+    const agentdexDir = join(tempDir, '.agentdex');
+    await Bun.write(join(agentdexDir, 'config.toml'), 'rpc = "https://file-rpc.com"\nfee_bps = 25\n');
 
     const config = resolveConfig();
     expect(config.rpc).toBe('https://file-rpc.com');
@@ -128,23 +128,23 @@ describe('resolveConfig', () => {
   });
 
   it('env vars override config file', async () => {
-    const clawdexDir = join(tempDir, '.clawdex');
-    await Bun.write(join(clawdexDir, 'config.toml'), 'rpc = "https://file-rpc.com"\n');
+    const agentdexDir = join(tempDir, '.agentdex');
+    await Bun.write(join(agentdexDir, 'config.toml'), 'rpc = "https://file-rpc.com"\n');
 
-    process.env.CLAWDEX_RPC = 'https://env-rpc.com';
+    process.env.AGENTDEX_RPC = 'https://env-rpc.com';
     const config = resolveConfig();
     expect(config.rpc).toBe('https://env-rpc.com');
   });
 
   it('CLI flags override env vars', () => {
-    process.env.CLAWDEX_RPC = 'https://env-rpc.com';
+    process.env.AGENTDEX_RPC = 'https://env-rpc.com';
     const config = resolveConfig({ rpc: 'https://flag-rpc.com' });
     expect(config.rpc).toBe('https://flag-rpc.com');
   });
 
   it('rejects RPC not in rpc_allowlist', async () => {
-    const clawdexDir = join(tempDir, '.clawdex');
-    await Bun.write(join(clawdexDir, 'config.toml'), [
+    const agentdexDir = join(tempDir, '.agentdex');
+    await Bun.write(join(agentdexDir, 'config.toml'), [
       'rpc = "https://evil-rpc.com"',
       '',
       '[safety]',
@@ -155,8 +155,8 @@ describe('resolveConfig', () => {
   });
 
   it('allows RPC in rpc_allowlist', async () => {
-    const clawdexDir = join(tempDir, '.clawdex');
-    await Bun.write(join(clawdexDir, 'config.toml'), [
+    const agentdexDir = join(tempDir, '.agentdex');
+    await Bun.write(join(agentdexDir, 'config.toml'), [
       'rpc = "https://allowed-rpc.com"',
       '',
       '[safety]',
@@ -171,18 +171,18 @@ describe('resolveConfig', () => {
 describe('setConfigValue', () => {
   it('creates config dir and file if missing', () => {
     setConfigValue('rpc', 'https://new-rpc.com');
-    const filePath = join(tempDir, '.clawdex', 'config.toml');
+    const filePath = join(tempDir, '.agentdex', 'config.toml');
     const content = readFileSync(filePath, 'utf-8');
     const parsed = parseToml(content);
     expect(parsed.rpc).toBe('https://new-rpc.com');
   });
 
   it('updates existing value while preserving others', async () => {
-    const clawdexDir = join(tempDir, '.clawdex');
-    await Bun.write(join(clawdexDir, 'config.toml'), 'rpc = "https://old.com"\nwallet = "~/w.json"\n');
+    const agentdexDir = join(tempDir, '.agentdex');
+    await Bun.write(join(agentdexDir, 'config.toml'), 'rpc = "https://old.com"\nwallet = "~/w.json"\n');
 
     setConfigValue('rpc', 'https://new.com');
-    const content = readFileSync(join(clawdexDir, 'config.toml'), 'utf-8');
+    const content = readFileSync(join(agentdexDir, 'config.toml'), 'utf-8');
     const parsed = parseToml(content);
     expect(parsed.rpc).toBe('https://new.com');
     expect(parsed.wallet).toBe('~/w.json');
@@ -202,7 +202,7 @@ describe('setConfigValue', () => {
 
   it('stores fee_bps as a number in TOML', () => {
     setConfigValue('fee_bps', '42');
-    const filePath = join(tempDir, '.clawdex', 'config.toml');
+    const filePath = join(tempDir, '.agentdex', 'config.toml');
     const parsed = parseToml(readFileSync(filePath, 'utf-8'));
     expect(parsed.fee_bps).toBe(42);
     expect(typeof parsed.fee_bps).toBe('number');
@@ -212,7 +212,7 @@ describe('setConfigValue', () => {
 describe('setSafetyValue', () => {
   it('sets numeric safety values', () => {
     setSafetyValue('max_fee_bps', '100');
-    const filePath = join(tempDir, '.clawdex', 'config.toml');
+    const filePath = join(tempDir, '.agentdex', 'config.toml');
     const parsed = parseToml(readFileSync(filePath, 'utf-8'));
     const safety = parsed.safety as Record<string, unknown>;
     expect(safety.max_fee_bps).toBe(100);
@@ -224,7 +224,7 @@ describe('setSafetyValue', () => {
 
   it('parses comma-separated allowlist', () => {
     setSafetyValue('allowlist', 'SOL, USDC, USDT');
-    const filePath = join(tempDir, '.clawdex', 'config.toml');
+    const filePath = join(tempDir, '.agentdex', 'config.toml');
     const parsed = parseToml(readFileSync(filePath, 'utf-8'));
     const safety = parsed.safety as Record<string, unknown>;
     expect(safety.allowlist).toEqual(['SOL', 'USDC', 'USDT']);
@@ -232,7 +232,7 @@ describe('setSafetyValue', () => {
 
   it('parses comma-separated rpc_allowlist', () => {
     setSafetyValue('rpc_allowlist', 'https://a.com,https://b.com');
-    const filePath = join(tempDir, '.clawdex', 'config.toml');
+    const filePath = join(tempDir, '.agentdex', 'config.toml');
     const parsed = parseToml(readFileSync(filePath, 'utf-8'));
     const safety = parsed.safety as Record<string, unknown>;
     expect(safety.rpc_allowlist).toEqual(['https://a.com', 'https://b.com']);

@@ -1,30 +1,30 @@
 ---
-name: clawdex
-description: Trade and send tokens on Solana using the ClawDex CLI. Use when the user asks to swap tokens, send tokens, check balances, get quotes, or manage a Solana trading wallet.
+name: agentdex
+description: Trade and send tokens on Solana using the AgentDex CLI. Use when the user asks to swap tokens, send tokens, check balances, get quotes, or manage a Solana trading wallet.
 tools: Bash, Read
 metadata:
   tags: solana, trading, defi, jupiter, swap, send, crypto
 ---
 
-# ClawDex — Solana DEX Trading Skill
+# AgentDex — Solana DEX Trading Skill
 
 Trade any Solana token through Jupiter aggregator with simulation, safety guardrails, and full JSON output.
 
 ## Prerequisites
 
-Before using this skill, ensure ClawDex is installed and configured:
+Before using this skill, ensure AgentDex is installed and configured:
 
 ```bash
-which clawdex || npm install -g clawdex@latest
+which agentdex || npm install -g agentdex-trade@latest
 ```
 
 If not configured yet, run onboarding:
 ```bash
-clawdex status --json
+agentdex status --json
 ```
 If status fails, set up with:
 ```bash
-clawdex onboarding \
+agentdex onboarding \
   --jupiter-api-key "$JUPITER_API_KEY" \
   --rpc "${SOLANA_RPC_URL:-https://api.mainnet-beta.solana.com}" \
   --wallet ~/.config/solana/id.json \
@@ -36,7 +36,7 @@ clawdex onboarding \
 ### Check wallet balances
 
 ```bash
-clawdex balances --json
+agentdex balances --json
 ```
 
 Returns an array of `{ token, symbol, mint, balance, decimals }` objects. Zero-balance accounts are included in JSON output.
@@ -44,7 +44,7 @@ Returns an array of `{ token, symbol, mint, balance, decimals }` objects. Zero-b
 ### Get a quote (no execution)
 
 ```bash
-clawdex quote --in SOL --out USDC --amount 0.01 --json
+agentdex quote --in SOL --out USDC --amount 0.01 --json
 ```
 
 Lightweight price check — no simulation, no wallet needed.
@@ -52,7 +52,7 @@ Lightweight price check — no simulation, no wallet needed.
 ### Simulate a swap (dry run)
 
 ```bash
-clawdex swap --in SOL --out USDC --amount 0.01 --simulate-only --json
+agentdex swap --in SOL --out USDC --amount 0.01 --simulate-only --json
 ```
 
 Runs full simulation on-chain without broadcasting. Does not require `--yes`. Use this to preview the output amount and route before committing.
@@ -60,15 +60,15 @@ Runs full simulation on-chain without broadcasting. Does not require `--yes`. Us
 ### Execute a swap
 
 ```bash
-clawdex swap --in SOL --out USDC --amount 0.01 --yes --json
+agentdex swap --in SOL --out USDC --amount 0.01 --yes --json
 ```
 
-**`--yes` is required** for non-interactive execution. Without it, ClawDex exits with code 1.
+**`--yes` is required** for non-interactive execution. Without it, AgentDex exits with code 1.
 
 ### Send tokens to another wallet
 
 ```bash
-clawdex send --to <address> --token SOL --amount 0.01 --yes --json
+agentdex send --to <address> --token SOL --amount 0.01 --yes --json
 ```
 
 Sends SOL or any SPL token to a recipient. Creates the recipient's token account automatically if needed. Supports `--simulate-only` for dry runs.
@@ -76,7 +76,7 @@ Sends SOL or any SPL token to a recipient. Creates the recipient's token account
 ### Health check
 
 ```bash
-clawdex status --json
+agentdex status --json
 ```
 
 Verify RPC connectivity, wallet validity, and config state.
@@ -85,12 +85,12 @@ Verify RPC connectivity, wallet validity, and config state.
 
 Always follow this sequence:
 
-1. **Health check** — `clawdex status --json` — abort if `rpc.healthy` is false
-2. **Check balances** — `clawdex balances --json` — verify sufficient funds
-3. **Simulate** — `clawdex swap --simulate-only --json` — preview the trade
-4. **Execute** — `clawdex swap --yes --json` — only if simulation looks good
-5. **Send** (optional) — `clawdex send --to <addr> --token SOL --amount 0.01 --yes --json` — transfer tokens
-6. **Verify** — `clawdex balances --json` — confirm balances updated (may need 5s delay on public RPC)
+1. **Health check** — `agentdex status --json` — abort if `rpc.healthy` is false
+2. **Check balances** — `agentdex balances --json` — verify sufficient funds
+3. **Simulate** — `agentdex swap --simulate-only --json` — preview the trade
+4. **Execute** — `agentdex swap --yes --json` — only if simulation looks good
+5. **Send** (optional) — `agentdex send --to <addr> --token SOL --amount 0.01 --yes --json` — transfer tokens
+6. **Verify** — `agentdex balances --json` — confirm balances updated (may need 5s delay on public RPC)
 
 ## Token Specification
 
@@ -113,7 +113,7 @@ Tokens can be passed by symbol or mint address:
 
 Set guardrails to prevent runaway trades:
 ```bash
-clawdex safety set max_slippage_bps=300 max_trade_sol=1 max_price_impact_bps=100
+agentdex safety set max_slippage_bps=300 max_trade_sol=1 max_price_impact_bps=100
 ```
 
 When a guardrail triggers, the JSON response includes a `violations` array describing what failed.

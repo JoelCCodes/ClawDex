@@ -5,7 +5,7 @@ import { OutputMode, EXIT_CONFIG, EXIT_SUCCESS } from '../types.js';
 
 export function configCommand(): Command {
   const cmd = new Command('config')
-    .description('Manage clawdex configuration')
+    .description('Manage agentdex configuration')
     .enablePositionalOptions()
     .passThroughOptions();
 

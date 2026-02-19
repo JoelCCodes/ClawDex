@@ -1,10 +1,10 @@
 {
-  "name": "clawdex",
-  "version": "0.3.3",
+  "name": "agentdex-trade",
+  "version": "0.4.0",
   "description": "Solana DEX trading CLI powered by Jupiter",
   "type": "module",
   "bin": {
-    "clawdex": "dist/cli.js"
+    "agentdex": "dist/cli.js"
   },
   "files": [
     "dist/"
@@ -30,7 +30,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/JoelCCodes/ClawDex.git"
+    "url": "https://github.com/JoelCCodes/AgentDex.git"
   },
   "engines": {
     "node": ">=18"

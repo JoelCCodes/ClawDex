@@ -24,7 +24,7 @@ const MOCK_KEYPAIR_BYTES: number[] = await Bun.file(MOCK_KEYPAIR_PATH).json();
 let tempDir: string;
 
 beforeEach(async () => {
-  tempDir = await mkdtemp(join(tmpdir(), 'clawdex-test-'));
+  tempDir = await mkdtemp(join(tmpdir(), 'agentdex-test-'));
   _fakeHome = tempDir;
 });
 

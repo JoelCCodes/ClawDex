@@ -9,16 +9,16 @@ let tempDir: string;
 let env: Record<string, string>;
 
 beforeEach(async () => {
-  tempDir = await mkdtemp(join(tmpdir(), 'clawdex-cmd-receipt-'));
+  tempDir = await mkdtemp(join(tmpdir(), 'agentdex-cmd-receipt-'));
   env = {
     ...process.env as Record<string, string>,
     HOME: tempDir,
   };
-  delete env.CLAWDEX_RPC;
-  delete env.CLAWDEX_WALLET;
-  delete env.CLAWDEX_FEE_BPS;
-  delete env.CLAWDEX_FEE_ACCOUNT;
-  delete env.CLAWDEX_RECEIPTS_DIR;
+  delete env.AGENTDEX_RPC;
+  delete env.AGENTDEX_WALLET;
+  delete env.AGENTDEX_FEE_BPS;
+  delete env.AGENTDEX_FEE_ACCOUNT;
+  delete env.AGENTDEX_RECEIPTS_DIR;
 });
 
 afterEach(async () => {
@@ -68,7 +68,7 @@ describe('receipt', () => {
 
   it('finds and displays a stored receipt', async () => {
     // Write a receipt to the receipts file
-    const receiptsDir = join(tempDir, '.clawdex', 'receipts');
+    const receiptsDir = join(tempDir, '.agentdex', 'receipts');
     await mkdir(receiptsDir, { recursive: true });
     await Bun.write(join(receiptsDir, 'receipts.jsonl'), JSON.stringify(mockReceipt) + '\n');
 
@@ -82,7 +82,7 @@ describe('receipt', () => {
   });
 
   it('returns JSON receipt with --json flag', async () => {
-    const receiptsDir = join(tempDir, '.clawdex', 'receipts');
+    const receiptsDir = join(tempDir, '.agentdex', 'receipts');
     await mkdir(receiptsDir, { recursive: true });
     await Bun.write(join(receiptsDir, 'receipts.jsonl'), JSON.stringify(mockReceipt) + '\n');
 
@@ -107,7 +107,7 @@ describe('receipt', () => {
       outputAmount: '117.0',
     };
 
-    const receiptsDir = join(tempDir, '.clawdex', 'receipts');
+    const receiptsDir = join(tempDir, '.agentdex', 'receipts');
     await mkdir(receiptsDir, { recursive: true });
     const content = JSON.stringify(mockReceipt) + '\n' + JSON.stringify(receipt2) + '\n';
     await Bun.write(join(receiptsDir, 'receipts.jsonl'), content);

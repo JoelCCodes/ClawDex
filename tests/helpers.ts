@@ -3,7 +3,7 @@ import { join } from 'path';
 import { tmpdir } from 'os';
 
 export async function createTempDir(): Promise<string> {
-  return mkdtemp(join(tmpdir(), 'clawdex-test-'));
+  return mkdtemp(join(tmpdir(), 'agentdex-test-'));
 }
 
 export async function cleanupTempDir(dir: string): Promise<void> {

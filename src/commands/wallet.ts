@@ -28,7 +28,7 @@ export function walletCommand(): Command {
       }
 
       if (!config.wallet) {
-        printError('No wallet configured. Run `clawdex onboarding` or `clawdex config set wallet=<path>`.', mode, EXIT_GENERAL);
+        printError('No wallet configured. Run `agentdex onboarding` or `agentdex config set wallet=<path>`.', mode, EXIT_GENERAL);
         process.exit(EXIT_GENERAL);
       }
 
@@ -64,7 +64,7 @@ export function walletCommand(): Command {
   // Subcommand: generate
   const genCmd = cmd.command('generate')
     .description('Generate a new Solana wallet keypair')
-    .option('--output <path>', 'Output file path', '~/.clawdex/wallet.json')
+    .option('--output <path>', 'Output file path', '~/.agentdex/wallet.json')
     .option('--json', 'Output in JSON format')
     .action(async (opts: { output: string; json?: boolean }) => {
       const isJson = opts.json || cmd.opts().json || cmd.parent?.opts().json;

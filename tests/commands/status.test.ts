@@ -10,16 +10,16 @@ let tempDir: string;
 let env: Record<string, string>;
 
 beforeEach(async () => {
-  tempDir = await mkdtemp(join(tmpdir(), 'clawdex-cmd-status-'));
+  tempDir = await mkdtemp(join(tmpdir(), 'agentdex-cmd-status-'));
   env = {
     ...process.env as Record<string, string>,
     HOME: tempDir,
   };
-  delete env.CLAWDEX_RPC;
-  delete env.CLAWDEX_WALLET;
-  delete env.CLAWDEX_FEE_BPS;
-  delete env.CLAWDEX_FEE_ACCOUNT;
-  delete env.CLAWDEX_RECEIPTS_DIR;
+  delete env.AGENTDEX_RPC;
+  delete env.AGENTDEX_WALLET;
+  delete env.AGENTDEX_FEE_BPS;
+  delete env.AGENTDEX_FEE_ACCOUNT;
+  delete env.AGENTDEX_RECEIPTS_DIR;
 });
 
 afterEach(async () => {
@@ -89,7 +89,7 @@ describe('status', () => {
   });
 
   it('exits with code 1 when RPC is unreachable', async () => {
-    env.CLAWDEX_RPC = 'http://127.0.0.1:1';
+    env.AGENTDEX_RPC = 'http://127.0.0.1:1';
     const { exitCode, stdout } = await run(['status', '--json']);
     expect(exitCode).toBe(1);
 
@@ -99,7 +99,7 @@ describe('status', () => {
   });
 
   it('includes RPC URL in JSON output', async () => {
-    env.CLAWDEX_RPC = 'https://custom-rpc.example.com';
+    env.AGENTDEX_RPC = 'https://custom-rpc.example.com';
     const { stdout } = await run(['status', '--json']);
     const parsed = JSON.parse(stdout.trim());
     expect(parsed.rpc.url).toBe('https://custom-rpc.example.com');

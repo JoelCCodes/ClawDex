@@ -11,16 +11,16 @@ let tempDir: string;
 let env: Record<string, string>;
 
 beforeEach(async () => {
-  tempDir = await mkdtemp(join(tmpdir(), 'clawdex-cmd-safety-'));
+  tempDir = await mkdtemp(join(tmpdir(), 'agentdex-cmd-safety-'));
   env = {
     ...process.env as Record<string, string>,
     HOME: tempDir,
   };
-  delete env.CLAWDEX_RPC;
-  delete env.CLAWDEX_WALLET;
-  delete env.CLAWDEX_FEE_BPS;
-  delete env.CLAWDEX_FEE_ACCOUNT;
-  delete env.CLAWDEX_RECEIPTS_DIR;
+  delete env.AGENTDEX_RPC;
+  delete env.AGENTDEX_WALLET;
+  delete env.AGENTDEX_FEE_BPS;
+  delete env.AGENTDEX_FEE_ACCOUNT;
+  delete env.AGENTDEX_RECEIPTS_DIR;
 });
 
 afterEach(async () => {
@@ -47,7 +47,7 @@ describe('safety set', () => {
     const { exitCode } = await run(['safety', 'set', 'max_fee_bps=100']);
     expect(exitCode).toBe(0);
 
-    const configPath = join(tempDir, '.clawdex', 'config.toml');
+    const configPath = join(tempDir, '.agentdex', 'config.toml');
     const parsed = parseToml(readFileSync(configPath, 'utf-8'));
     const safety = parsed.safety as Record<string, unknown>;
     expect(safety.max_fee_bps).toBe(100);
@@ -57,7 +57,7 @@ describe('safety set', () => {
     const { exitCode } = await run(['safety', 'set', 'max_fee_bps=100', 'max_slippage_bps=300']);
     expect(exitCode).toBe(0);
 
-    const configPath = join(tempDir, '.clawdex', 'config.toml');
+    const configPath = join(tempDir, '.agentdex', 'config.toml');
     const parsed = parseToml(readFileSync(configPath, 'utf-8'));
     const safety = parsed.safety as Record<string, unknown>;
     expect(safety.max_fee_bps).toBe(100);
@@ -68,7 +68,7 @@ describe('safety set', () => {
     const { exitCode } = await run(['safety', 'set', 'allowlist=SOL,USDC,USDT']);
     expect(exitCode).toBe(0);
 
-    const configPath = join(tempDir, '.clawdex', 'config.toml');
+    const configPath = join(tempDir, '.agentdex', 'config.toml');
     const parsed = parseToml(readFileSync(configPath, 'utf-8'));
     const safety = parsed.safety as Record<string, unknown>;
     expect(safety.allowlist).toEqual(['SOL', 'USDC', 'USDT']);

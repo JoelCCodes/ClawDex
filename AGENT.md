@@ -1,24 +1,24 @@
-# ClawDex Agent Integration Guide
+# AgentDex Agent Integration Guide
 
-This guide is for AI agents and bots that use ClawDex to trade on Solana. It covers setup, the trading loop, error handling, and safety.
+This guide is for AI agents and bots that use AgentDex to trade on Solana. It covers setup, the trading loop, error handling, and safety.
 
 ## Install
 
 ```bash
-npm install -g clawdex@latest
+npm install -g agentdex-trade@latest
 ```
 
 Verify:
 ```bash
-clawdex --version   # should print 0.3.3+
+agentdex --version   # should print 0.4.0+
 ```
 
 ## Setup (non-interactive)
 
-Agents must provide all flags — ClawDex will not prompt:
+Agents must provide all flags — AgentDex will not prompt:
 
 ```bash
-clawdex onboarding \
+agentdex onboarding \
   --jupiter-api-key "$JUPITER_API_KEY" \
   --rpc "$SOLANA_RPC_URL" \
   --wallet ~/.config/solana/id.json \
@@ -29,11 +29,11 @@ clawdex onboarding \
 
 Or generate a fresh wallet:
 ```bash
-clawdex onboarding \
+agentdex onboarding \
   --jupiter-api-key "$JUPITER_API_KEY" \
   --rpc "$SOLANA_RPC_URL" \
   --generate-wallet \
-  --wallet-output ~/.clawdex/wallet.json \
+  --wallet-output ~/.agentdex/wallet.json \
   --json
 ```
 
@@ -49,8 +49,8 @@ These override config file values (useful in containers/CI):
 | Variable | Description |
 |----------|-------------|
 | `JUPITER_API_KEY` | Jupiter API key |
-| `CLAWDEX_RPC` | Solana RPC endpoint |
-| `CLAWDEX_WALLET` | Path to wallet keypair JSON |
+| `AGENTDEX_RPC` | Solana RPC endpoint |
+| `AGENTDEX_WALLET` | Path to wallet keypair JSON |
 
 ## Trading Loop
 
@@ -59,7 +59,7 @@ Every agent trade should follow this sequence:
 ### 1. Health check
 
 ```bash
-clawdex status --json
+agentdex status --json
 ```
 
 Abort if `rpc.healthy` is `false`.
@@ -67,7 +67,7 @@ Abort if `rpc.healthy` is `false`.
 ### 2. Check balances
 
 ```bash
-clawdex balances --json
+agentdex balances --json
 ```
 
 Returns all token accounts (including zero-balance). Parse the `balance` field as a string — it preserves full decimal precision.
@@ -75,7 +75,7 @@ Returns all token accounts (including zero-balance). Parse the `balance` field a
 ### 3. Simulate
 
 ```bash
-clawdex swap --in SOL --out USDC --amount 0.01 --simulate-only --json
+agentdex swap --in SOL --out USDC --amount 0.01 --simulate-only --json
 ```
 
 No `--yes` needed for simulation. Check the output amount and route before committing.
@@ -83,15 +83,15 @@ No `--yes` needed for simulation. Check the output amount and route before commi
 ### 4. Execute
 
 ```bash
-clawdex swap --in SOL --out USDC --amount 0.01 --yes --json
+agentdex swap --in SOL --out USDC --amount 0.01 --yes --json
 ```
 
-`--yes` is **required** for non-interactive execution. Without it, ClawDex exits with code 1.
+`--yes` is **required** for non-interactive execution. Without it, AgentDex exits with code 1.
 
 ### 4b. Send tokens (transfer without swap)
 
 ```bash
-clawdex send --to <address> --token SOL --amount 0.01 --yes --json
+agentdex send --to <address> --token SOL --amount 0.01 --yes --json
 ```
 
 Sends SOL or any SPL token to a recipient. For SPL tokens, the recipient's token account is created automatically if needed. `--simulate-only` works here too.
@@ -99,7 +99,7 @@ Sends SOL or any SPL token to a recipient. For SPL tokens, the recipient's token
 ### 5. Verify
 
 ```bash
-clawdex balances --json
+agentdex balances --json
 ```
 
 Confirm the balances changed as expected. RPC can lag — wait a few seconds and retry if stale.
@@ -146,7 +146,7 @@ Parse the exit code to decide what to do next:
 Set limits to prevent runaway trades:
 
 ```bash
-clawdex safety set max_slippage_bps=300 max_trade_sol=1 max_price_impact_bps=100
+agentdex safety set max_slippage_bps=300 max_trade_sol=1 max_price_impact_bps=100
 ```
 
 | Guardrail | What it does |
@@ -170,5 +170,5 @@ Tokens can be specified by symbol or mint address:
 - `--simulate-only` does **not** need `--yes`
 - RPC balance updates can lag 5-10 seconds on public endpoints — retry reads
 - Use a dedicated RPC (Helius, Triton, etc.) for production agents
-- Store receipts in `~/.clawdex/receipts/` for audit trails
+- Store receipts in `~/.agentdex/receipts/` for audit trails
 - The `quote` command is cheaper than `swap --simulate-only` (no simulation, just price)

@@ -12,16 +12,16 @@ let tempDir: string;
 let env: Record<string, string>;
 
 beforeEach(async () => {
-  tempDir = await mkdtemp(join(tmpdir(), 'clawdex-cmd-onboarding-'));
+  tempDir = await mkdtemp(join(tmpdir(), 'agentdex-cmd-onboarding-'));
   env = {
     ...process.env as Record<string, string>,
     HOME: tempDir,
   };
-  delete env.CLAWDEX_RPC;
-  delete env.CLAWDEX_WALLET;
-  delete env.CLAWDEX_FEE_BPS;
-  delete env.CLAWDEX_FEE_ACCOUNT;
-  delete env.CLAWDEX_RECEIPTS_DIR;
+  delete env.AGENTDEX_RPC;
+  delete env.AGENTDEX_WALLET;
+  delete env.AGENTDEX_FEE_BPS;
+  delete env.AGENTDEX_FEE_ACCOUNT;
+  delete env.AGENTDEX_RECEIPTS_DIR;
   delete env.JUPITER_API_KEY;
 });
 
@@ -176,7 +176,7 @@ describe('onboarding', () => {
     // Only check TOML if config was actually written (requires RPC to be healthy)
     if (parsed.validation.config_written) {
       expect(exitCode).toBe(0);
-      const configPath = join(tempDir, '.clawdex', 'config.toml');
+      const configPath = join(tempDir, '.agentdex', 'config.toml');
       const toml = parseToml(readFileSync(configPath, 'utf-8'));
       const safety = toml.safety as Record<string, unknown>;
       expect(safety.max_slippage_bps).toBe(300);
@@ -219,7 +219,7 @@ describe('onboarding', () => {
   it('--help works and shows description', async () => {
     const { stdout, exitCode } = await run(['onboarding', '--help']);
     expect(exitCode).toBe(0);
-    expect(stdout).toContain('Configure ClawDex');
+    expect(stdout).toContain('Configure AgentDex');
   });
 
   it('validation continues past first failure', async () => {

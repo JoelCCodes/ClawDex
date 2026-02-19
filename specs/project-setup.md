@@ -67,7 +67,7 @@ tests/
 
 - Entry: `src/cli.ts`
 - Test: `bun test` (uses built-in test runner)
-- Binary name: `clawdex` (via `bin` field in package.json or bun build)
+- Binary name: `agentdex` (via `bin` field in package.json or bun build)
 
 ## Requirements
 
